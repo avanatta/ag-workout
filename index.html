@@ -220,14 +220,21 @@
 
         function renderCategories() {
             const list = document.getElementById('categoryList');
+            const dropdown = document.getElementById('newExCategory');
+        
+            // Update the main Category buttons
             list.innerHTML = categories.map(cat => `
                 <div onclick='openCategory("${cat}")' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50">
                     <span class="font-bold text-gray-800">${cat}</span>
                     <span class="text-gray-300">&rang;</span>
                 </div>
             `).join('');
+        
+            // Update the "Add New" dropdown menu options
+            dropdown.innerHTML = categories.map(cat => `
+                <option value="${cat}">${cat}</option>
+            `).join('');
         }
-
         function openCategory(category) {
             document.getElementById('categoryTitle').innerText = category;
             const list = document.getElementById('exerciseList');
