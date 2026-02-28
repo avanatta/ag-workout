@@ -272,23 +272,23 @@ function openCategory(category) {
 
 function renderExerciseList(category) {
     const list = document.getElementById('exerciseList');
-    const user = document.getElementById('userToggle').value;
+    const user = document.getElementById('userToggle').value.toLowerCase();
     const showInactive = document.getElementById('showInactiveCheck').checked;
     
     const filtered = exercises.filter(ex => ex.category === category);
     
     const htmlOutput = filtered.map(ex => {
-        const isInactive = localStorage.getItem(`inactive_${user}_${ex.name}`) === 'true';
+        // Look at the columns we added to the Google Sheet
+        const isInactive = ex[`inactive_${user}`] === 'true';
+        const isReady = ex[`levelup_${user}`] === 'true';
         
-        // If it's inactive and we aren't showing inactive, hide it
         if (isInactive && !showInactive) return '';
 
-        const isReady = localStorage.getItem(`levelup_${user}_${ex.name}`) === 'true';
         const readyBadge = isReady ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
         const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
         
         return `
-        <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
+        <div onclick='openLogger(${JSON.stringify(ex).replace(/'/g, "&apos;")})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
             <div class="flex items-center">
                 <span class="font-bold text-gray-800">${ex.name}</span>
                 ${readyBadge}
@@ -299,9 +299,9 @@ function renderExerciseList(category) {
         `;
     }).join('');
 
-    list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No exercises found.</div>';
+    list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No active exercises.</div>';
 }
-
+        
         function renderHistory() {
             const user = document.getElementById('userToggle').value;
             const list = document.getElementById('historyList');
@@ -441,24 +441,22 @@ function renderExerciseList(category) {
                 document.getElementById('lastSessionText').innerText = "No previous data.";
                 document.getElementById('prText').classList.add('hidden');
             }
-            // Sync Level Up Toggle State
-            const isReady = localStorage.getItem(`levelup_${user}_${currentExercise.name}`) === 'true';
-            document.getElementById('levelUpCheck').checked = isReady;
-            const container = document.getElementById('levelUpContainer');
-            if (isReady) {
-                container.classList.replace('border-transparent', 'border-blue-500');
-            } else {
-                container.classList.replace('border-blue-500', 'border-transparent');
-            }
-            // Sync Inactive Toggle State
-            const isInactive = localStorage.getItem(`inactive_${user}_${currentExercise.name}`) === 'true';
-            document.getElementById('inactiveCheck').checked = isInactive;
-            const inactiveContainer = document.getElementById('inactiveContainer');
-            if (isInactive) {
-                inactiveContainer.classList.replace('border-transparent', 'border-gray-400');
-            } else {
-                inactiveContainer.classList.replace('border-gray-400', 'border-transparent');
-            }
+         // Sync Toggles from Google Sheet data
+    const userLower = user.toLowerCase();
+    const isReady = currentExercise[`levelup_${userLower}`] === 'true';
+    const isInactive = currentExercise[`inactive_${userLower}`] === 'true';
+
+    document.getElementById('levelUpCheck').checked = isReady;
+    document.getElementById('inactiveCheck').checked = isInactive;
+
+    // Update container borders
+    const levelContainer = document.getElementById('levelUpContainer');
+    if (isReady) levelContainer.classList.replace('border-transparent', 'border-blue-500');
+    else levelContainer.classList.replace('border-blue-500', 'border-transparent');
+
+    const inactiveContainer = document.getElementById('inactiveContainer');
+    if (isInactive) inactiveContainer.classList.replace('border-transparent', 'border-gray-400');
+    else inactiveContainer.classList.replace('border-gray-400', 'border-transparent');
         }
 
         function toggleTimer() {
@@ -594,39 +592,46 @@ function renderExerciseList(category) {
         alert("Failed to delete log.");
     }
 }
-        function toggleLevelUp() {
-            const user = document.getElementById('userToggle').value;
-            const isChecked = document.getElementById('levelUpCheck').checked;
-            
-            // Save to the phone's local storage
-            localStorage.setItem(`levelup_${user}_${currentExercise.name}`, isChecked);
-            
-            // Highlight the box visually
-            const container = document.getElementById('levelUpContainer');
-            if (isChecked) {
-                container.classList.replace('border-transparent', 'border-blue-500');
-            } else {
-                container.classList.replace('border-blue-500', 'border-transparent');
-            }
-        }
-        function toggleInactive() {
-            const user = document.getElementById('userToggle').value;
-            const isChecked = document.getElementById('inactiveCheck').checked;
-            
-            localStorage.setItem(`inactive_${user}_${currentExercise.name}`, isChecked);
-            
-            const container = document.getElementById('inactiveContainer');
-            if (isChecked) {
-                container.classList.replace('border-transparent', 'border-gray-400');
-            } else {
-                container.classList.replace('border-gray-400', 'border-transparent');
-            }
+async function updateExerciseState(type, isChecked) {
+    const user = document.getElementById('userToggle').value.toLowerCase();
+    const column = `${type}_${user}`; // e.g., levelup_alex or inactive_gen
+    
+    // Optimistically update the UI container color
+    const containerId = type === 'levelup' ? 'levelUpContainer' : 'inactiveContainer';
+    const activeColor = type === 'levelup' ? 'border-blue-500' : 'border-gray-400';
+    const container = document.getElementById(containerId);
+    
+    if (isChecked) {
+        container.classList.replace('border-transparent', activeColor);
+    } else {
+        container.classList.replace(activeColor, 'border-transparent');
+    }
+
+    try {
+        await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [column]: isChecked ? "true" : "false" })
+        });
         
-            // Refresh the exercise list in the background so it's ready when you go back
-            if (currentExercise && currentExercise.category) {
-                renderExerciseList(currentExercise.category);
-            }
+        // Refresh the local exercises list so the badges update
+        await fetchExercises();
+        if (!document.getElementById('screen-exercises').classList.contains('hidden')) {
+            renderExerciseList(currentExercise.category);
         }
+    } catch (err) {
+        console.error("Failed to sync with Google Sheets:", err);
+    }
+}
+
+// Update these wrappers to use the new function
+function toggleLevelUp() {
+    updateExerciseState('levelup', document.getElementById('levelUpCheck').checked);
+}
+
+function toggleInactive() {
+    updateExerciseState('inactive', document.getElementById('inactiveCheck').checked);
+}
         async function saveNewExercise() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
