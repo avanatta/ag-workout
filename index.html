@@ -87,7 +87,7 @@
                 </div>
                 <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 mt-4 hidden">60</div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mt-4 mb-2">
+            <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
                 <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="levelUpContainer">
                     <span class="font-bold text-gray-800 text-sm mb-3">🚀 Level Up</span>
                     <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
@@ -97,6 +97,13 @@
                     <span class="font-bold text-gray-800 text-sm mb-3">💤 Inactive</span>
                     <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
                 </label>
+            </div>
+
+            <div id="loggerChartContainer" class="bg-white p-4 rounded-xl shadow-sm mb-4 hidden">
+                <h3 class="font-bold text-gray-800 text-sm mb-2">Progress</h3>
+                <div class="relative w-full h-32">
+                    <canvas id="loggerChart"></canvas>
+                </div>
             </div>
 
             <div class="h-16"></div>
@@ -185,6 +192,7 @@
         let timerInterval;
         let countdownValue = 0;
         let progressChartInstance = null;
+        let loggerChartInstance = null;
         const dingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
 
         async function init() {
@@ -460,6 +468,8 @@ function renderExerciseList(category) {
     const inactiveContainer = document.getElementById('inactiveContainer');
     if (isInactive) inactiveContainer.classList.replace('border-transparent', 'border-gray-400');
     else inactiveContainer.classList.replace('border-gray-400', 'border-transparent');
+
+            renderLoggerChart();
         }
 
         function toggleTimer() {
@@ -655,7 +665,53 @@ async function updateExerciseState(type, isChecked) {
 function toggleLevelUp() {
     updateExerciseState('levelup', document.getElementById('levelUpCheck').checked);
 }
-
+function renderLoggerChart() {
+            if (!currentExercise) return;
+            const user = document.getElementById('userToggle').value;
+            const canvas = document.getElementById('loggerChart');
+            const container = document.getElementById('loggerChartContainer');
+            
+            // Get logs for this specific exercise and user
+            const chartLogs = historyData.filter(log => log.exercise_name === currentExercise.name && log.user_name === user).reverse();
+            
+            // Hide the chart if there is less than 2 data points
+            if (chartLogs.length < 2) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            const labels = chartLogs.map(log => log.date);
+            // Prioritize graphing weight, then time, then reps
+            const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || parseFloat(log.reps) || 0);
+            
+            if (loggerChartInstance) loggerChartInstance.destroy();
+            
+            loggerChartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: currentExercise.name,
+                        data: data,
+                        borderColor: user === 'Alex' ? '#10B981' : '#EC4899', 
+                        backgroundColor: user === 'Alex' ? '#D1FAE5' : '#FCE7F3',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false }, // Hides dates to keep it clean
+                        y: { display: true, ticks: { maxTicksLimit: 4 } }
+                    }
+                }
+            });
+        }
 function toggleInactive() {
     updateExerciseState('inactive', document.getElementById('inactiveCheck').checked);
 }
