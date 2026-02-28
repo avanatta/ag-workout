@@ -91,7 +91,7 @@
                     <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 my-4 hidden">60</div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-2 gap-4 mt-4 mb-2">
                 <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="levelUpContainer">
                     <span class="font-bold text-gray-800 text-sm mb-3">🚀 Level Up</span>
                     <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
@@ -102,7 +102,8 @@
                     <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
                 </label>
             </div>
-            <div class="h-24"></div> 
+
+            <div class="h-16"></div>
             <div class="fixed bottom-[96px] left-4 right-4 z-20">
                 <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-xl active:scale-95 transition-transform">
                     Log Workout
