@@ -88,9 +88,12 @@
                 <select id="historyExerciseToggle" class="w-full bg-gray-100 rounded p-2 mb-2 text-sm font-semibold" onchange="renderChart()">
                     <option value="">Select an exercise for chart...</option>
                 </select>
-                <canvas id="progressChart" class="w-full h-40 hidden"></canvas>
+                
+                <div id="chartContainer" class="relative w-full h-48 hidden mt-2">
+                    <canvas id="progressChart"></canvas>
+                </div>
             </div>
-
+        
             <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Recent Logs</h2>
             <div id="historyList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
@@ -207,13 +210,14 @@
             const user = document.getElementById('userToggle').value;
             const exerciseName = document.getElementById('historyExerciseToggle').value;
             const canvas = document.getElementById('progressChart');
+            const container = document.getElementById('chartContainer');
             
             if (!exerciseName) {
-                canvas.classList.add('hidden');
+                container.classList.add('hidden');
                 return;
             }
             
-            canvas.classList.remove('hidden');
+            container.classList.remove('hidden');
             const chartLogs = historyData.filter(log => log.exercise_name === exerciseName && log.user_name === user).reverse();
             const labels = chartLogs.map(log => log.date);
             const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || 0);
@@ -235,8 +239,7 @@
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-        }
-
+        }        
         function openLogger(ex) {
             currentExercise = ex;
             document.getElementById('loggerTitle').innerText = ex.name;
