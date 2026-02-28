@@ -17,12 +17,21 @@
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans antialiased h-screen flex flex-col">
 
-    <div class="bg-white shadow-sm p-4 text-center font-bold text-lg flex justify-between items-center z-10">
-        <span>A&G Assistant</span>
-        <select id="userToggle" class="bg-gray-200 rounded px-2 py-1 text-sm font-semibold" onchange="handleUserChange()">
-            <option value="Alex">Alex</option>
-            <option value="Gen">Gen</option>
-        </select>
+    <div class="bg-white shadow-sm p-4 flex justify-between items-center z-10 relative min-h-[60px]">
+        <div class="flex-1 flex justify-start">
+            <button id="headerBackBtn" class="text-blue-500 font-semibold flex items-center hidden">
+                <span class="text-2xl mb-1 mr-1">&larr;</span> Back
+            </button>
+        </div>
+        
+        <span class="font-bold text-lg absolute left-1/2 transform -translate-x-1/2 whitespace-nowrap">A&G Assistant</span>
+        
+        <div class="flex-1 flex justify-end">
+            <select id="userToggle" class="bg-gray-200 rounded px-2 py-1 text-sm font-semibold" onchange="handleUserChange()">
+                <option value="Alex">Alex</option>
+                <option value="Gen">Gen</option>
+            </select>
+        </div>
     </div>
 
     <div id="content" class="flex-1 overflow-y-auto p-4 pb-20">
@@ -41,9 +50,6 @@
         </div>
 
         <div id="screen-exercises" class="hidden">
-            <button onclick="showScreen('categories')" class="text-blue-500 font-semibold mb-4 flex items-center">
-                <span>&larr; Back</span>
-            </button>
             <div class="flex justify-between items-center mb-2">
                 <h2 id="categoryTitle" class="font-bold text-gray-500 uppercase text-sm">Workouts</h2>
                 <div class="flex items-center space-x-4">
@@ -61,9 +67,6 @@
 
         <div id="screen-logger" class="hidden">
             <div class="flex items-center justify-between mb-4">
-                <button onclick="showScreen('exercises')" class="text-blue-500 font-semibold flex items-center">
-                    <span class="text-xl mr-1">&larr;</span> Back
-                </button>
                 <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-right">Exercise</h1>
             </div>
 
@@ -145,11 +148,7 @@
             <div id="historyList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
 
-        <div id="screen-add-exercise" class="hidden">
-            <div class="flex items-center justify-between mb-4">
-                <button onclick="showScreen('categories')" class="text-blue-500 font-semibold flex items-center">
-                    <span class="text-xl mr-1">&larr;</span> Back
-                </button>
+            <div id="screen-add-exercise" class="hidden">
                 <h1 class="text-xl font-bold text-orange-600 text-right">New Exercise</h1>
             </div>
             
@@ -237,14 +236,30 @@
             renderChart();
         }
 
-        function showScreen(screen) {
+ function showScreen(screen) {
             ['categories', 'exercises', 'logger', 'history', 'add-exercise'].forEach(s => {
                 document.getElementById(`screen-${s}`).classList.add('hidden');
             });
             document.getElementById(`screen-${screen}`).classList.remove('hidden');
             
+            // Handle Dynamic Header Back Button
+            const backBtn = document.getElementById('headerBackBtn');
+            if (screen === 'exercises') {
+                backBtn.classList.remove('hidden');
+                backBtn.onclick = () => showScreen('categories');
+            } else if (screen === 'logger') {
+                backBtn.classList.remove('hidden');
+                backBtn.onclick = () => showScreen('exercises');
+            } else if (screen === 'add-exercise') {
+                backBtn.classList.remove('hidden');
+                backBtn.onclick = () => showScreen('categories');
+            } else {
+                backBtn.classList.add('hidden');
+            }
+
+            // Handle Bottom Tab Bar
             document.querySelectorAll('.fixed.bottom-0 button').forEach(btn => btn.classList.replace('text-blue-600', 'text-gray-400'));
-            if(screen === 'categories' || screen === 'exercises' || screen === 'logger' || screen === 'add-exercise') {
+            if(['categories', 'exercises', 'logger', 'add-exercise'].includes(screen)) {
                 document.querySelectorAll('.fixed.bottom-0 button')[0].classList.replace('text-gray-400', 'text-blue-600');
             }
             if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
