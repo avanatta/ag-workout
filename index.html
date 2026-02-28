@@ -63,6 +63,16 @@
                 <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-right">Exercise</h1>
             </div>
 
+            <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
+            
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+                <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
+                <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
+                <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+
            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div id="input-sets" class="hidden">
@@ -201,7 +211,7 @@
         }
 
         async function fetchExercises() {
-            const res = await fetch(`${API_URL}?sheet=Exercises`);
+            const res = await fetch(`${API_URL}?sheet=Exercises`, { cache: 'no-store' });
             exercises = await res.json();
             categories = [...new Set(exercises.map(ex => ex.category))].sort();
         }
