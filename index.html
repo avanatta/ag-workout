@@ -8,8 +8,8 @@
     <title>A&G Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Prevents zooming and bounce effects to feel like a native app */
         body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none; }
     </style>
@@ -18,7 +18,7 @@
 
     <div class="bg-white shadow-sm p-4 text-center font-bold text-lg flex justify-between items-center z-10">
         <span>A&G Assistant</span>
-        <select id="userToggle" class="bg-gray-200 rounded px-2 py-1 text-sm font-semibold" onchange="loadData()">
+        <select id="userToggle" class="bg-gray-200 rounded px-2 py-1 text-sm font-semibold" onchange="handleUserChange()">
             <option value="Alex">Alex</option>
             <option value="Gen">Gen</option>
         </select>
@@ -26,11 +26,19 @@
 
     <div id="content" class="flex-1 overflow-y-auto p-4 pb-20">
         
-        <div id="screen-exercises">
-            <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Workouts</h2>
-            <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
-                <div class="p-4 text-center text-gray-400">Loading exercises...</div>
+        <div id="screen-categories">
+            <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Categories</h2>
+            <div id="categoryList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
+                <div class="p-4 text-center text-gray-400">Loading categories...</div>
             </div>
+        </div>
+
+        <div id="screen-exercises" class="hidden">
+            <button onclick="showScreen('categories')" class="text-blue-500 font-semibold mb-4 flex items-center">
+                <span>&larr; Back</span>
+            </button>
+            <h2 id="categoryTitle" class="font-bold text-gray-500 mb-2 uppercase text-sm">Workouts</h2>
+            <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
 
         <div id="screen-logger" class="hidden">
@@ -39,7 +47,7 @@
             </button>
             <h1 id="loggerTitle" class="text-2xl font-bold mb-4">Exercise</h1>
             
-            <img id="gifViewer" class="w-full h-48 object-cover rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
+            <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
             
             <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
                 <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
@@ -76,16 +84,21 @@
         </div>
 
         <div id="screen-history" class="hidden">
-            <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Recent Logs</h2>
-            <div id="historyList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
-                <div class="p-4 text-center text-gray-400">Loading history...</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+                <select id="historyExerciseToggle" class="w-full bg-gray-100 rounded p-2 mb-2 text-sm font-semibold" onchange="renderChart()">
+                    <option value="">Select an exercise for chart...</option>
+                </select>
+                <canvas id="progressChart" class="w-full h-40 hidden"></canvas>
             </div>
+
+            <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Recent Logs</h2>
+            <div id="historyList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
 
     </div>
 
     <div class="bg-white border-t border-gray-200 flex justify-around p-3 pb-8 fixed bottom-0 w-full z-10">
-        <button onclick="showScreen('exercises')" class="flex flex-col items-center text-blue-600 w-1/2">
+        <button onclick="showScreen('categories')" class="flex flex-col items-center text-blue-600 w-1/2">
             <span class="text-2xl">🏃</span>
             <span class="text-xs font-semibold mt-1">Workout</span>
         </button>
@@ -99,59 +112,79 @@
         const API_URL = "https://sheetdb.io/api/v1/jb1t5l576h532";
         let exercises = [];
         let historyData = [];
+        let categories = [];
         let currentExercise = null;
         let timerInterval;
         let countdownValue = 0;
+        let progressChartInstance = null;
         const dingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
 
         async function init() {
             await Promise.all([fetchExercises(), fetchHistory()]);
-            renderExercises();
+            renderCategories();
         }
 
         async function fetchExercises() {
             const res = await fetch(`${API_URL}?sheet=Exercises`);
             exercises = await res.json();
+            categories = [...new Set(exercises.map(ex => ex.category))].sort();
         }
 
         async function fetchHistory() {
             const res = await fetch(API_URL);
             historyData = (await res.json()).reverse();
+            populateHistoryDropdown();
             renderHistory();
+            renderChart();
         }
 
         function showScreen(screen) {
-            document.getElementById('screen-exercises').classList.add('hidden');
-            document.getElementById('screen-logger').classList.add('hidden');
-            document.getElementById('screen-history').classList.add('hidden');
+            ['categories', 'exercises', 'logger', 'history'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
+            });
             document.getElementById(`screen-${screen}`).classList.remove('hidden');
             
-            // Tab styling update
-            document.querySelectorAll('.fixed.bottom-0 button').forEach(btn => {
-                btn.classList.remove('text-blue-600');
-                btn.classList.add('text-gray-400');
-            });
-            if(screen === 'exercises' || screen === 'logger') document.querySelectorAll('.fixed.bottom-0 button')[0].classList.add('text-blue-600', 'text-gray-400');
-            if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.add('text-blue-600', 'text-gray-400');
+            document.querySelectorAll('.fixed.bottom-0 button').forEach(btn => btn.classList.replace('text-blue-600', 'text-gray-400'));
+            if(screen === 'categories' || screen === 'exercises' || screen === 'logger') document.querySelectorAll('.fixed.bottom-0 button')[0].classList.replace('text-gray-400', 'text-blue-600');
+            if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
         }
 
-        function renderExercises() {
-            const list = document.getElementById('exerciseList');
-            list.innerHTML = exercises.map(ex => `
-                <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50">
-                    <div>
-                        <div class="font-bold text-gray-800">${ex.name}</div>
-                        <div class="text-xs text-gray-400">${ex.category}</div>
-                    </div>
+        function handleUserChange() {
+            loadData();
+            renderHistory();
+            renderChart();
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('categoryList');
+            list.innerHTML = categories.map(cat => `
+                <div onclick='openCategory("${cat}")' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50">
+                    <span class="font-bold text-gray-800">${cat}</span>
                     <span class="text-gray-300">&rang;</span>
                 </div>
             `).join('');
         }
 
+        function openCategory(category) {
+            document.getElementById('categoryTitle').innerText = category;
+            const list = document.getElementById('exerciseList');
+            const filtered = exercises.filter(ex => ex.category === category);
+            list.innerHTML = filtered.map(ex => `
+                <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50">
+                    <span class="font-bold text-gray-800">${ex.name}</span>
+                    <span class="text-gray-300">&rang;</span>
+                </div>
+            `).join('');
+            showScreen('exercises');
+        }
+
         function renderHistory() {
+            const user = document.getElementById('userToggle').value;
             const list = document.getElementById('historyList');
-            if (historyData.length === 0) return list.innerHTML = '<div class="p-4 text-center">No logs yet.</div>';
-            list.innerHTML = historyData.map(log => `
+            const filtered = historyData.filter(log => log.user_name === user);
+            
+            if (filtered.length === 0) return list.innerHTML = '<div class="p-4 text-center">No logs yet.</div>';
+            list.innerHTML = filtered.map(log => `
                 <div class="p-4">
                     <div class="flex justify-between items-start mb-1">
                         <span class="font-bold text-gray-800">${log.exercise_name}</span>
@@ -163,16 +196,55 @@
             `).join('');
         }
 
+        function populateHistoryDropdown() {
+            const dropdown = document.getElementById('historyExerciseToggle');
+            const uniqueExercises = [...new Set(historyData.map(log => log.exercise_name))].sort();
+            dropdown.innerHTML = '<option value="">Select an exercise for chart...</option>' + 
+                uniqueExercises.map(ex => `<option value="${ex}">${ex}</option>`).join('');
+        }
+
+        function renderChart() {
+            const user = document.getElementById('userToggle').value;
+            const exerciseName = document.getElementById('historyExerciseToggle').value;
+            const canvas = document.getElementById('progressChart');
+            
+            if (!exerciseName) {
+                canvas.classList.add('hidden');
+                return;
+            }
+            
+            canvas.classList.remove('hidden');
+            const chartLogs = historyData.filter(log => log.exercise_name === exerciseName && log.user_name === user).reverse();
+            const labels = chartLogs.map(log => log.date);
+            const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || 0);
+            
+            if (progressChartInstance) progressChartInstance.destroy();
+            
+            progressChartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: exerciseName,
+                        data: data,
+                        borderColor: user === 'Alex' ? '#10B981' : '#3B82F6',
+                        backgroundColor: user === 'Alex' ? '#D1FAE5' : '#DBEAFE',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
         function openLogger(ex) {
             currentExercise = ex;
             document.getElementById('loggerTitle').innerText = ex.name;
             
-            // Handle GIF
             const gif = document.getElementById('gifViewer');
             if(ex.gif_url) { gif.src = ex.gif_url; gif.classList.remove('hidden'); }
             else { gif.classList.add('hidden'); }
 
-            // Handle Units
             const units = ex.units ? ex.units.toLowerCase() : "sets,reps,weight";
             ['sets', 'reps', 'weight', 'time'].forEach(u => {
                 document.getElementById(`input-${u}`).classList.toggle('hidden', !units.includes(u));
@@ -197,7 +269,6 @@
                 let details = [last.sets ? last.sets+' Sets' : '', last.reps ? last.reps+' Reps' : '', last.weight ? last.weight+'kg' : '', last.time ? last.time+'s' : ''].filter(Boolean).join(' × ');
                 document.getElementById('lastSessionText').innerText = details;
 
-                // Increase Logic
                 let incDate = null;
                 for(let i=0; i<userLogs.length-1; i++) {
                     if(parseFloat(userLogs[i].weight) > parseFloat(userLogs[i+1].weight)) { incDate = userLogs[i].date; break; }
@@ -283,15 +354,15 @@
                     await new Promise(r => setTimeout(r, 2000));
                 }
 
-                await fetchHistory(); // Refresh
-                showScreen('exercises');
+                await fetchHistory(); 
+                showScreen('categories');
             } catch (err) { alert("Failed to save log."); }
 
             btn.innerText = "Log Workout";
             btn.disabled = false;
         }
 
-        init(); // Start app
+        init(); 
     </script>
 </body>
 </html>
