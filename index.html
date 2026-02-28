@@ -249,9 +249,18 @@
             if(ex.gif_url) { gif.src = ex.gif_url; gif.classList.remove('hidden'); }
             else { gif.classList.add('hidden'); }
 
+            // Handle Units
             const units = ex.units ? ex.units.toLowerCase() : "sets,reps,weight";
+            const isCardio = ex.category === "Cardio";
+            
             ['sets', 'reps', 'weight', 'time'].forEach(u => {
-                document.getElementById(`input-${u}`).classList.toggle('hidden', !units.includes(u));
+                const container = document.getElementById(`input-${u}`);
+                container.classList.toggle('hidden', !units.includes(u));
+                
+                // Change label to Minutes if it's Cardio
+                if (u === 'time') {
+                    container.querySelector('label').innerText = isCardio ? "Time (minutes)" : "Time (seconds)";
+                }
             });
 
             loadData();
@@ -287,9 +296,10 @@
             }
         }
 
-        function toggleTimer() {
-            const btn = document.getElementById('timerBtn');
-            const display = document.getElementById('countdownDisplay');
+            function toggleTimer() {
+                const btn = document.getElementById('timerBtn');
+                const display = document.getElementById('countdownDisplay');
+                const isCardio = currentExercise.category === "Cardio";
             
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -298,8 +308,11 @@
                 btn.classList.replace('bg-red-500', 'bg-green-500');
                 display.classList.add('hidden');
             } else {
-                countdownValue = parseInt(document.getElementById('time').value) || 0;
-                if(countdownValue <= 0) return;
+                let rawValue = parseInt(document.getElementById('time').value) || 0;
+                // Convert minutes to seconds for the actual countdown
+                countdownValue = isCardio ? rawValue * 60 : rawValue; 
+                
+                if(countdownValue <= 0) return;    
                 
                 display.classList.remove('hidden');
                 display.innerText = countdownValue;
