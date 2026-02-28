@@ -272,23 +272,48 @@
             const user = document.getElementById('userToggle').value;
             const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
             const last = userLogs[0];
-
+            const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
+        
             if(last) {
                 document.getElementById('sets').value = last.sets || '';
                 document.getElementById('reps').value = last.reps || '';
                 document.getElementById('weight').value = last.weight || '';
                 document.getElementById('time').value = last.time || '';
                 
-                let details = [last.sets ? last.sets+' Sets' : '', last.reps ? last.reps+' Reps' : '', last.weight ? last.weight+'kg' : '', last.time ? last.time+'s' : ''].filter(Boolean).join(' × ');
+                let details = [
+                    last.sets ? last.sets+' Sets' : '', 
+                    last.reps ? last.reps+' Reps' : '', 
+                    last.weight ? last.weight+'kg' : '', 
+                    last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
+                ].filter(Boolean).join(' × ');
                 document.getElementById('lastSessionText').innerText = details;
-
+        
+                // Dynamic Increase Logic
                 let incDate = null;
                 for(let i=0; i<userLogs.length-1; i++) {
-                    if(parseFloat(userLogs[i].weight) > parseFloat(userLogs[i+1].weight)) { incDate = userLogs[i].date; break; }
+                    let increased = false;
+                    
+                    if (units.includes('weight')) {
+                        // Priority 1: Weight
+                        increased = parseFloat(userLogs[i].weight) > parseFloat(userLogs[i+1].weight);
+                    } else if (units.includes('time')) {
+                        // Priority 2: Time (if no weight)
+                        increased = parseFloat(userLogs[i].time) > parseFloat(userLogs[i+1].time);
+                    } else if (units.includes('reps')) {
+                        // Priority 3: Reps (if no weight or time)
+                        increased = parseFloat(userLogs[i].reps) > parseFloat(userLogs[i+1].reps);
+                    }
+        
+                    if(increased) { incDate = userLogs[i].date; break; }
                 }
+        
                 const prText = document.getElementById('prText');
-                if(incDate) { prText.classList.remove('hidden'); document.getElementById('increaseDate').innerText = incDate; }
-                else { prText.classList.add('hidden'); }
+                if(incDate) { 
+                    prText.classList.remove('hidden'); 
+                    document.getElementById('increaseDate').innerText = incDate; 
+                } else { 
+                    prText.classList.add('hidden'); 
+                }
             } else {
                 ['sets', 'reps', 'weight', 'time'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('lastSessionText').innerText = "No previous data.";
@@ -339,14 +364,31 @@
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Saving...";
             btn.disabled = true;
-
+        
             const user = document.getElementById('userToggle').value;
-            const weightVal = document.getElementById('weight').value;
+            const weightVal = parseFloat(document.getElementById('weight').value) || 0;
+            const repsVal = parseFloat(document.getElementById('reps').value) || 0;
+            const timeVal = parseFloat(document.getElementById('time').value) || 0;
             
+            const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
             const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
+        
+            // Calculate Best Ever for this specific user and exercise
             const bestWeight = Math.max(0, ...userLogs.map(l => parseFloat(l.weight) || 0));
-            const isPR = parseFloat(weightVal) > bestWeight && bestWeight > 0;
-
+            const bestReps = Math.max(0, ...userLogs.map(l => parseFloat(l.reps) || 0));
+            const bestTime = Math.max(0, ...userLogs.map(l => parseFloat(l.time) || 0));
+        
+            let isPR = false;
+        
+            // PR Logic Priority
+            if (units.includes('weight') && weightVal > 0) {
+                isPR = weightVal > bestWeight && bestWeight > 0;
+            } else if (units.includes('time') && timeVal > 0) {
+                isPR = timeVal > bestTime && bestTime > 0;
+            } else if (units.includes('reps') && repsVal > 0) {
+                isPR = repsVal > bestReps && bestReps > 0;
+            }
+        
             const log = {
                 id: crypto.randomUUID(),
                 exercise_name: currentExercise.name,
@@ -355,26 +397,33 @@
                 date: new Date().toLocaleDateString(),
                 sets: document.getElementById('sets').value,
                 reps: document.getElementById('reps').value,
-                weight: weightVal,
+                weight: document.getElementById('weight').value,
                 time: document.getElementById('time').value
             };
-
+        
             try {
                 await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ data: [log] })
                 });
-
+        
                 if (isPR) {
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    confetti({ 
+                        particleCount: 150, 
+                        spread: 70, 
+                        origin: { y: 0.6 },
+                        colors: user === 'Alex' ? ['#10B981', '#ffffff'] : ['#3B82F6', '#ffffff']
+                    });
                     await new Promise(r => setTimeout(r, 2000));
                 }
-
+        
                 await fetchHistory(); 
                 showScreen('categories');
-            } catch (err) { alert("Failed to save log."); }
-
+            } catch (err) { 
+                alert("Failed to save log."); 
+            }
+        
             btn.innerText = "Log Workout";
             btn.disabled = false;
         }
