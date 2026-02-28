@@ -230,7 +230,8 @@
         }
 
         async function fetchHistory() {
-            const res = await fetch(API_URL, { cache: 'no-store' });
+            // Explicitly requesting the "Logs" sheet here
+            const res = await fetch(`${API_URL}?sheet=Logs`, { cache: 'no-store' });
             let rawData = await res.json();
             
             historyData = rawData.sort((a, b) => {
@@ -684,9 +685,9 @@
                 time: document.getElementById('time').value
             };
         
-            try {
-                // Send custom POST tunnel to Google Apps Script
-                await googleFetch({ method: "POST", data: log });
+                try {
+                // Added sheet: "Logs" to tell Google exactly where to save it
+                await googleFetch({ method: "POST", sheet: "Logs", data: log });
                 
                 if (isPR) {
                     confetti({ 
@@ -700,7 +701,6 @@
                     const levelUpColumn = `levelup_${userLower}`;
                     
                     try {
-                        // Send custom PATCH tunnel to Google Apps Script
                         await googleFetch({
                             method: "PATCH",
                             sheet: "Exercises",
@@ -730,8 +730,8 @@
             if (!confirm("Are you sure you want to delete this log?")) return;
 
             try {
-                // Send custom DELETE tunnel to Google Apps Script
-                await googleFetch({ method: "DELETE", id: logId });
+                // Added sheet: "Logs" to tell Google exactly where to delete from
+                await googleFetch({ method: "DELETE", sheet: "Logs", id: logId });
                 await fetchHistory();
             } catch (err) {
                 alert("Failed to delete log.");
