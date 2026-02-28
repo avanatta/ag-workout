@@ -46,7 +46,7 @@
                 <h2 id="categoryTitle" class="font-bold text-gray-500 uppercase text-sm">Workouts</h2>
                 <div class="flex items-center space-x-4">
                     <label class="flex items-center text-xs font-semibold text-gray-400 cursor-pointer">
-                        <input type="checkbox" id="showInactiveCheck" onchange="openCategory(document.getElementById('categoryTitle').innerText)" class="mr-1"> Show Inactive
+                        <input type="checkbox" id="showInactiveCheck" onchange="openCategory(document.getElementById('categoryTitle').textContent)" class="mr-1"> Show Inactive
                     </label>
                     <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
                 </div>
@@ -234,9 +234,9 @@
             loadData();
             renderHistory();
             renderChart();
-            // Refresh badges if currently looking at the exercise list
+            // Changed innerText to textContent here as well
             if (!document.getElementById('screen-exercises').classList.contains('hidden')) {
-                openCategory(document.getElementById('categoryTitle').innerText);
+                openCategory(document.getElementById('categoryTitle').textContent);
             }
         }
 
