@@ -191,8 +191,14 @@
         async function fetchHistory() {
             const res = await fetch(API_URL);
             let rawData = await res.json();
-            // Sort by Date Descending
-            historyData = rawData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Improved sorting for DD/MM/YYYY
+            historyData = rawData.sort((a, b) => {
+                const [dayA, monthA, yearA] = a.date.split('/');
+                const [dayB, monthB, yearB] = b.date.split('/');
+                return new Date(yearB, monthB - 1, dayB) - new Date(yearA, monthA - 1, dayA);
+            });
+        
             populateHistoryDropdown();
             renderHistory();
             renderChart();
