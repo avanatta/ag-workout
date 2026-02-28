@@ -399,13 +399,15 @@
                 document.getElementById('weight').value = last.weight || '';
                 document.getElementById('time').value = last.time || '';
                 
-                let details = [
-                    last.sets ? last.sets+' Sets' : '', 
-                    last.reps ? last.reps+' Reps' : '', 
-                    last.weight ? last.weight+'kg' : '', 
-                    last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
-                ].filter(Boolean).join(' × ');
-                document.getElementById('lastSessionText').innerText = details;
+            let details = [
+                last.sets ? last.sets+' Sets' : '', 
+                last.reps ? last.reps+' Reps' : '', 
+                last.weight ? last.weight+'kg' : '', 
+                last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
+            ].filter(Boolean).join(' × ');
+        
+            // Adds the date right before the stats
+            document.getElementById('lastSessionText').innerText = `${last.date}: ${details}`;
         
                 let incDate = null;
                 for(let i=0; i<userLogs.length-1; i++) {
