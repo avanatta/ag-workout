@@ -66,9 +66,18 @@
             <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
             
             <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
-                <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
-                <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
-                <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleLoggerChart()">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
+                        <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
+                        <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
+                    </div>
+                    <div id="chartToggleIcon" class="text-gray-400 text-2xl transition-transform duration-300 hidden">▾</div>
+                </div>
+                
+                <div id="loggerChartContainer" class="hidden mt-4 pt-4 border-t border-gray-100 relative w-full h-32">
+                    <canvas id="loggerChart"></canvas>
+                </div>
             </div>
 
             <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
@@ -103,13 +112,6 @@
                     <span class="font-bold text-gray-800 text-sm mb-3">💤 Inactive</span>
                     <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
                 </label>
-            </div>
-
-            <div id="loggerChartContainer" class="bg-white p-4 rounded-xl shadow-sm mb-4 hidden">
-                <h3 class="font-bold text-gray-800 text-sm mb-2">Progress</h3>
-                <div class="relative w-full h-32">
-                    <canvas id="loggerChart"></canvas>
-                </div>
             </div>
 
             <div class="h-16"></div>
@@ -387,6 +389,8 @@ function renderExerciseList(category) {
 
         function openLogger(ex) {
             currentExercise = ex;
+            document.getElementById('loggerChartContainer').classList.add('hidden');
+            document.getElementById('chartToggleIcon').style.transform = 'rotate(0deg)';
             document.getElementById('loggerTitle').innerText = ex.name;
             
             const gif = document.getElementById('gifViewer');
@@ -676,20 +680,18 @@ function renderLoggerChart() {
             if (!currentExercise) return;
             const user = document.getElementById('userToggle').value;
             const canvas = document.getElementById('loggerChart');
-            const container = document.getElementById('loggerChartContainer');
+            const icon = document.getElementById('chartToggleIcon');
             
-            // Get logs for this specific exercise and user
             const chartLogs = historyData.filter(log => log.exercise_name === currentExercise.name && log.user_name === user).reverse();
             
-            // Hide the chart if there is less than 2 data points
+            // Show or hide the dropdown arrow based on data length
             if (chartLogs.length < 2) {
-                container.classList.add('hidden');
+                icon.classList.add('hidden');
                 return;
             }
             
-            container.classList.remove('hidden');
+            icon.classList.remove('hidden');
             const labels = chartLogs.map(log => log.date);
-            // Prioritize graphing weight, then time, then reps
             const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || parseFloat(log.reps) || 0);
             
             if (loggerChartInstance) loggerChartInstance.destroy();
@@ -713,15 +715,33 @@ function renderLoggerChart() {
                     maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { display: true, ticks: { maxTicksLimit: 5 } }, // Changed to true and limited ticks so dates don't overlap
+                        x: { display: true, ticks: { maxTicksLimit: 5 } }, 
                         y: { display: true, ticks: { maxTicksLimit: 4 } }
                     }
                 }
             });
         }
-function toggleInactive() {
-    updateExerciseState('inactive', document.getElementById('inactiveCheck').checked);
-}
+        function toggleLoggerChart() {
+            const container = document.getElementById('loggerChartContainer');
+            const icon = document.getElementById('chartToggleIcon');
+            
+            // If the icon is hidden (not enough data), don't do anything when tapped
+            if (icon.classList.contains('hidden')) return;
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+                // Force Chart.js to resize perfectly when revealed
+                if (loggerChartInstance) loggerChartInstance.resize(); 
+            } else {
+                container.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        function toggleInactive() {
+            updateExerciseState('inactive', document.getElementById('inactiveCheck').checked);
+        }
         async function saveNewExercise() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
