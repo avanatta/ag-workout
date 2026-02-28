@@ -102,7 +102,8 @@
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="time" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
-                            <button id="timerBtn" onclick="toggleTimer()" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Start</button>
+                            <button id="timerBtn" onclick="toggleTimer()" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors">Start</button>
+                            <button id="resetTimerBtn" onclick="resetTimer()" class="bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hidden transition-colors">Reset</button>
                         </div>
                     </div>
                 </div>
@@ -394,6 +395,7 @@
         }
 
         function openLogger(ex) {
+            resetTimer();
             currentExercise = ex;
             document.getElementById('loggerTitle').innerText = ex.name;
             
@@ -552,44 +554,72 @@
             });
         }
 
-        function toggleTimer() {
+function toggleTimer() {
             const btn = document.getElementById('timerBtn');
+            const resetBtn = document.getElementById('resetTimerBtn');
             const display = document.getElementById('countdownDisplay');
             const isCardio = currentExercise.category === "Cardio";
             
+            const updateDisplay = () => {
+                const m = Math.floor(countdownValue / 60);
+                const s = countdownValue % 60;
+                display.innerText = (isCardio || m > 0) ? `${m}:${s.toString().padStart(2, '0')}` : countdownValue;
+            };
+
             if (timerInterval) {
+                // Timer is running -> Pause it
                 clearInterval(timerInterval);
                 timerInterval = null;
-                btn.innerText = "Start";
-                btn.classList.replace('bg-red-500', 'bg-green-500');
-                display.classList.add('hidden');
+                btn.innerText = "Resume";
+                btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-yellow-500";
             } else {
-                let rawValue = parseInt(document.getElementById('time').value) || 0;
-                countdownValue = isCardio ? rawValue * 60 : rawValue; 
+                // Timer is paused or stopped -> Start/Resume it
+                if (countdownValue <= 0 || display.classList.contains('hidden')) {
+                    let rawValue = parseInt(document.getElementById('time').value) || 0;
+                    countdownValue = isCardio ? rawValue * 60 : rawValue; 
+                    if(countdownValue <= 0) return;   
+                    
+                    display.classList.remove('hidden');
+                    display.classList.remove('text-red-500');
+                    display.classList.add('text-orange-500');
+                    resetBtn.classList.remove('hidden');
+                }
                 
-                if(countdownValue <= 0) return;   
-                
-                display.classList.remove('hidden');
-                display.innerText = countdownValue;
-                display.classList.replace('text-red-500', 'text-orange-500');
-                btn.innerText = "Stop";
-                btn.classList.replace('bg-green-500', 'bg-red-500');
+                updateDisplay();
+                btn.innerText = "Pause";
+                btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-red-500";
 
                 timerInterval = setInterval(() => {
                     countdownValue--;
-                    display.innerText = countdownValue;
+                    updateDisplay();
+                    
                     if(countdownValue <= 5) display.classList.replace('text-orange-500', 'text-red-500');
+                    
                     if(countdownValue <= 0) {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        btn.innerText = "Start";
-                        btn.classList.replace('bg-red-500', 'bg-green-500');
+                        resetTimer();
                         dingSound.play().catch(e => console.log("Audio play prevented by browser"));
                     }
                 }, 1000);
             }
         }
 
+        function resetTimer() {
+            const btn = document.getElementById('timerBtn');
+            const resetBtn = document.getElementById('resetTimerBtn');
+            const display = document.getElementById('countdownDisplay');
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            countdownValue = 0;
+            display.classList.add('hidden');
+            
+            btn.innerText = "Start";
+            btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-green-500";
+            resetBtn.classList.add('hidden');
+        }
+        
         async function submitWorkout() {
             const btn = document.getElementById('submitBtn');
             const user = document.getElementById('userToggle').value;
