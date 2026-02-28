@@ -261,13 +261,18 @@
             
             if (filtered.length === 0) return list.innerHTML = '<div class="p-4 text-center">No logs yet.</div>';
             list.innerHTML = filtered.map(log => `
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="font-bold text-gray-800">${log.exercise_name}</span>
-                        <span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'pink'}-100 text-${log.user_name === 'Alex' ? 'green' : 'pink'}-800 font-bold">${log.user_name}</span>
+                <div class="p-4 flex justify-between items-center group">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1 mr-4">
+                            <span class="font-bold text-gray-800">${log.exercise_name}</span>
+                            <span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'pink'}-100 text-${log.user_name === 'Alex' ? 'green' : 'pink'}-800 font-bold">${log.user_name}</span>
+                        </div>
+                        <div class="text-sm text-gray-600">${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}</div>
+                        <div class="text-xs text-gray-400 mt-1">${log.date}</div>
                     </div>
-                    <div class="text-sm text-gray-600">${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}</div>
-                    <div class="text-xs text-gray-400 mt-1">${log.date}</div>
+                    <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-600 p-2 text-xl">
+                        🗑️
+                    </button>
                 </div>
             `).join('');
         }
@@ -492,7 +497,25 @@
             btn.innerText = "Log Workout";
             btn.disabled = false;
         }
+        async function deleteLog(logId) {
+    if (!confirm("Are you sure you want to delete this log?")) return;
 
+    try {
+        // SheetDB allows deleting by column value
+        const res = await fetch(`${API_URL}/id/${logId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+            // Refresh local data so the UI updates immediately
+            await fetchHistory();
+            alert("Log deleted successfully.");
+        }
+    } catch (err) {
+        alert("Failed to delete log.");
+    }
+}
         async function saveNewExercise() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
