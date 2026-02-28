@@ -19,7 +19,7 @@
 
     <div class="bg-white shadow-sm p-4 flex justify-between items-center z-10 relative min-h-[60px]">
         <div class="flex-1 flex justify-start">
-            <button id="headerBackBtn" class="text-blue-500 font-semibold flex items-center hidden">
+            <button id="headerBackBtn" class="text-blue-500 font-semibold flex items-center invisible">
                 <span class="text-2xl mb-1 mr-1">&larr;</span> Back
             </button>
         </div>
@@ -67,7 +67,7 @@
 
         <div id="screen-logger" class="hidden">
             <div class="flex items-center justify-between mb-4">
-                <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-right">Exercise</h1>
+                <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-left">Exercise</h1>
             </div>
 
             <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
@@ -241,17 +241,16 @@
             
             // Handle Dynamic Header Back Button
             const backBtn = document.getElementById('headerBackBtn');
+            backBtn.classList.remove('hidden', 'invisible'); // Clears both to be safe
+            
             if (screen === 'exercises') {
-                backBtn.classList.remove('hidden');
                 backBtn.onclick = () => showScreen('categories');
             } else if (screen === 'logger') {
-                backBtn.classList.remove('hidden');
                 backBtn.onclick = () => showScreen('exercises');
             } else if (screen === 'add-exercise') {
-                backBtn.classList.remove('hidden');
                 backBtn.onclick = () => showScreen('categories');
             } else {
-                backBtn.classList.add('hidden');
+                backBtn.classList.add('invisible'); // Uses invisible to hold the height
             }
 
             // Handle Bottom Tab Bar
