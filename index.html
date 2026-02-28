@@ -272,9 +272,9 @@ function renderExerciseList(category) {
     const filtered = exercises.filter(ex => ex.category === category);
     
     const htmlOutput = filtered.map(ex => {
-        // Look at the columns we added to the Google Sheet
-        const isInactive = ex[`inactive_${user}`] === 'true';
-        const isReady = ex[`levelup_${user}`] === 'true';
+// Forces whatever Google Sheets returns into lowercase before checking
+        const isInactive = String(ex[`inactive_${user}`]).toLowerCase() === 'true';
+        const isReady = String(ex[`levelup_${user}`]).toLowerCase() === 'true';
         
         if (isInactive && !showInactive) return '';
 
@@ -448,8 +448,8 @@ function renderExerciseList(category) {
             }
          // Sync Toggles from Google Sheet data
     const userLower = user.toLowerCase();
-    const isReady = currentExercise[`levelup_${userLower}`] === 'true';
-    const isInactive = currentExercise[`inactive_${userLower}`] === 'true';
+    const isReady = String(currentExercise[`levelup_${userLower}`]).toLowerCase() === 'true';
+    const isInactive = String(currentExercise[`inactive_${userLower}`]).toLowerCase() === 'true';
 
     document.getElementById('levelUpCheck').checked = isReady;
     document.getElementById('inactiveCheck').checked = isInactive;
