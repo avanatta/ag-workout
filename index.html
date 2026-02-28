@@ -55,7 +55,7 @@
         </div>
 
 
-        <div id="screen-logger" class="hidden">
+<div id="screen-logger" class="hidden">
             <div class="flex items-center justify-between mb-4">
                 <button onclick="showScreen('exercises')" class="text-blue-500 font-semibold flex items-center">
                     <span class="text-xl mr-1">&larr;</span> Back
@@ -70,10 +70,8 @@
                 <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
                 <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
 
-           <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div id="input-sets" class="hidden">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sets</label>
@@ -94,10 +92,8 @@
                             <button id="timerBtn" onclick="toggleTimer()" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Start</button>
                         </div>
                     </div>
-                </div>
-                <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 mt-4 hidden">60</div>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
+                </div> <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 mt-4 hidden">60</div>
+            </div> <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
                 <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="levelUpContainer">
                     <span class="font-bold text-gray-800 text-sm mb-3">🚀 Level Up</span>
                     <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
@@ -117,6 +113,7 @@
             </div>
 
             <div class="h-16"></div>
+            
             <div class="fixed bottom-[96px] left-4 right-4 z-20">
                 <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-xl transition-all duration-150 active:scale-95 active:bg-blue-800 active:shadow-sm">
                     Log Workout
@@ -716,7 +713,7 @@ function renderLoggerChart() {
                     maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { display: false }, // Hides dates to keep it clean
+                        x: { display: true, ticks: { maxTicksLimit: 5 } }, // Changed to true and limited ticks so dates don't overlap
                         y: { display: true, ticks: { maxTicksLimit: 4 } }
                     }
                 }
