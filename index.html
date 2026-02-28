@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="apple-mobile-web-app-capable" content="yes"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;A&amp;G Assistant&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Prevents zooming and bounce effects to feel like a native app */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.hidden { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 text-gray-900 font-sans antialiased h-screen flex flex-col"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white shadow-sm p-4 text-center font-bold text-lg flex justify-between items-center z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;A&amp;G Assistant&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="userToggle" class="bg-gray-200 rounded px-2 py-1 text-sm font-semibold" onchange="loadData()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Alex"&gt;Alex&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="Gen"&gt;Gen&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="content" class="flex-1 overflow-y-auto p-4 pb-20"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="screen-exercises"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-gray-500 mb-2 uppercase text-sm"&gt;Workouts&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4 text-center text-gray-400"&gt;Loading exercises...&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="screen-logger" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button onclick="showScreen('exercises')" class="text-blue-500 font-semibold mb-4 flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;&amp;larr; Back&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 id="loggerTitle" class="text-2xl font-bold mb-4"&gt;Exercise&lt;/h1&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;img id="gifViewer" class="w-full h-48 object-cover rounded-xl mb-4 hidden" src="" alt="Exercise GIF"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-4 rounded-xl shadow-sm mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="font-bold text-gray-800 text-sm mb-1"&gt;Session History&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p id="lastSessionText" class="text-gray-600 text-sm"&gt;Loading...&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden"&gt;Last increase: &lt;span id="increaseDate"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-4 rounded-xl shadow-sm space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="input-sets" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="block text-xs font-bold text-gray-500 uppercase"&gt;Sets&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="sets" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" placeholder="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="input-reps" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="block text-xs font-bold text-gray-500 uppercase"&gt;Reps&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="reps" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" placeholder="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="input-weight" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="block text-xs font-bold text-gray-500 uppercase"&gt;Weight (kg)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="weight" step="0.5" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" placeholder="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="input-time" class="hidden relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="block text-xs font-bold text-gray-500 uppercase"&gt;Time (seconds)&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="number" id="time" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" placeholder="60"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="timerBtn" onclick="toggleTimer()" class="ml-4 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold"&gt;Start&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 my-4 hidden"&gt;60&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>Log Workout</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="screen-history" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-gray-500 mb-2 uppercase text-sm"&gt;Recent Logs&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="historyList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4 text-center text-gray-400"&gt;Loading history...&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-white border-t border-gray-200 flex justify-around p-3 pb-8 fixed bottom-0 w-full z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="showScreen('exercises')" class="flex flex-col items-center text-blue-600 w-1/2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-2xl"&gt;🏃&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-xs font-semibold mt-1"&gt;Workout&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="showScreen('history')" class="flex flex-col items-center text-gray-400 w-1/2" id="tabHistory"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-2xl"&gt;🕒&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="text-xs font-semibold mt-1"&gt;History&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const API_URL = "https://sheetdb.io/api/v1/jb1t5l576h532";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let exercises = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let historyData = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentExercise = null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timerInterval;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let countdownValue = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>await Promise.all([fetchExercises(), fetchHistory()]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderExercises();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function fetchExercises() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const res = await fetch(`${API_URL}?sheet=Exercises`);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>exercises = await res.json();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function fetchHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const res = await fetch(API_URL);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>historyData = (await res.json()).reverse();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderHistory();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showScreen(screen) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('screen-exercises').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('screen-logger').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('screen-history').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(`screen-${screen}`).classList.remove('hidden');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Tab styling update</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.fixed.bottom-0 button').forEach(btn =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.classList.remove('text-blue-600');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.classList.add('text-gray-400');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(screen === 'exercises' || screen === 'logger') document.querySelectorAll('.fixed.bottom-0 button')[0].classList.add('text-blue-600', 'text-gray-400');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.add('text-blue-600', 'text-gray-400');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderExercises() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const list = document.getElementById('exerciseList');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>list.innerHTML = exercises.map(ex =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="font-bold text-gray-800"&gt;${ex.name}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="text-xs text-gray-400"&gt;${ex.category}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="text-gray-300"&gt;&amp;rang;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function renderHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const list = document.getElementById('historyList');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (historyData.length === 0) return list.innerHTML = '&lt;div class="p-4 text-center"&gt;No logs yet.&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>list.innerHTML = historyData.map(log =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-between items-start mb-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="font-bold text-gray-800"&gt;${log.exercise_name}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'blue'}-100 text-${log.user_name === 'Alex' ? 'green' : 'blue'}-800 font-bold"&gt;${log.user_name}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-sm text-gray-600"&gt;${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="text-xs text-gray-400 mt-1"&gt;${log.date}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openLogger(ex) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentExercise = ex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('loggerTitle').innerText = ex.name;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Handle GIF</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gif = document.getElementById('gifViewer');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(ex.gif_url) { gif.src = ex.gif_url; gif.classList.remove('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else { gif.classList.add('hidden'); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Handle Units</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const units = ex.units ? ex.units.toLowerCase() : "sets,reps,weight";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>['sets', 'reps', 'weight', 'time'].forEach(u =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById(`input-${u}`).classList.toggle('hidden', !units.includes(u));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>loadData();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showScreen('logger');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function loadData() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(!currentExercise) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const user = document.getElementById('userToggle').value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const userLogs = historyData.filter(l =&gt; l.exercise_name === currentExercise.name &amp;&amp; l.user_name === user);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const last = userLogs[0];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(last) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('sets').value = last.sets || '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('reps').value = last.reps || '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('weight').value = last.weight || '';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('time').value = last.time || '';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let details = [last.sets ? last.sets+' Sets' : '', last.reps ? last.reps+' Reps' : '', last.weight ? last.weight+'kg' : '', last.time ? last.time+'s' : ''].filter(Boolean).join(' × ');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('lastSessionText').innerText = details;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Increase Logic</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let incDate = null;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let i=0; i&lt;userLogs.length-1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if(parseFloat(userLogs[i].weight) &gt; parseFloat(userLogs[i+1].weight)) { incDate = userLogs[i].date; break; }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const prText = document.getElementById('prText');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(incDate) { prText.classList.remove('hidden'); document.getElementById('increaseDate').innerText = incDate; }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>else { prText.classList.add('hidden'); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>['sets', 'reps', 'weight', 'time'].forEach(id =&gt; document.getElementById(id).value = '');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('lastSessionText').innerText = "No previous data.";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('prText').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleTimer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const btn = document.getElementById('timerBtn');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const display = document.getElementById('countdownDisplay');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timerInterval) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>timerInterval = null;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.innerText = "Start";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.classList.replace('bg-red-500', 'bg-green-500');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>display.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>countdownValue = parseInt(document.getElementById('time').value) || 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(countdownValue &lt;= 0) return;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>display.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>display.innerText = countdownValue;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>display.classList.replace('text-red-500', 'text-orange-500');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.innerText = "Stop";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>btn.classList.replace('bg-green-500', 'bg-red-500');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>timerInterval = setInterval(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>countdownValue--;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>display.innerText = countdownValue;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if(countdownValue &lt;= 5) display.classList.replace('text-orange-500', 'text-red-500');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if(countdownValue &lt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>clearInterval(timerInterval);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>timerInterval = null;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>btn.innerText = "Start";</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>btn.classList.replace('bg-red-500', 'bg-green-500');</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>dingSound.play().catch(e =&gt; console.log("Audio play prevented by browser"));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>async function submitWorkout() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const btn = document.getElementById('submitBtn');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btn.innerText = "Saving...";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btn.disabled = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const user = document.getElementById('userToggle').value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const weightVal = document.getElementById('weight').value;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const userLogs = historyData.filter(l =&gt; l.exercise_name === currentExercise.name &amp;&amp; l.user_name === user);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bestWeight = Math.max(0, ...userLogs.map(l =&gt; parseFloat(l.weight) || 0));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isPR = parseFloat(weightVal) &gt; bestWeight &amp;&amp; bestWeight &gt; 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const log = {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>id: crypto.randomUUID(),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>exercise_name: currentExercise.name,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>category: currentExercise.category,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>user_name: user,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>date: new Date().toLocaleDateString(),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sets: document.getElementById('sets').value,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>reps: document.getElementById('reps').value,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>weight: weightVal,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>time: document.getElementById('time').value</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>await fetch(API_URL, {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>method: 'POST',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>headers: { 'Content-Type': 'application/json' },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>body: JSON.stringify({ data: [log] })</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (isPR) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>await new Promise(r =&gt; setTimeout(r, 2000));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>await fetchHistory(); // Refresh</p>
+<p class="p1"><span class="Apple-converted-space">                </span>showScreen('exercises');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (err) { alert("Failed to save log."); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>btn.innerText = "Log Workout";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btn.disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>init(); // Start app</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
