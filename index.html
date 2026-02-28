@@ -42,9 +42,13 @@
             <button onclick="showScreen('categories')" class="text-blue-500 font-semibold mb-4 flex items-center">
                 <span>&larr; Back</span>
             </button>
-            <h2 id="categoryTitle" class="font-bold text-gray-500 mb-2 uppercase text-sm">Workouts</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 id="categoryTitle" class="font-bold text-gray-500 uppercase text-sm">Workouts</h2>
+                <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
+            </div>
             <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
+
 
         <div id="screen-logger" class="hidden">
             <button onclick="showScreen('exercises')" class="text-blue-500 font-semibold mb-4 flex items-center">
