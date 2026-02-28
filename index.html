@@ -91,23 +91,23 @@
                     <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 my-4 hidden">60</div>
                 </div>
             </div>
-            <label class="bg-white p-4 rounded-xl shadow-sm mb-6 flex justify-between items-center cursor-pointer border-2 border-transparent transition-colors" id="levelUpContainer">
-                <div>
-                    <h3 class="font-bold text-gray-800 text-sm">🚀 Ready to Level Up</h3>
-                    <p class="text-xs text-gray-500">Target increase for next session</p>
-                </div>
-                <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
-            </label>
-            <label class="bg-white p-4 rounded-xl shadow-sm mb-6 flex justify-between items-center cursor-pointer border-2 border-transparent transition-colors" id="inactiveContainer">
-                <div>
-                    <h3 class="font-bold text-gray-800 text-sm">💤 Mark as Inactive</h3>
-                    <p class="text-xs text-gray-500">Hide from the active workout list</p>
-                </div>
-                <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
-            </label>
-            <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mt-6">
-                Log Workout
-            </button>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="levelUpContainer">
+                    <span class="font-bold text-gray-800 text-sm mb-3">🚀 Level Up</span>
+                    <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
+                </label>
+                
+                <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="inactiveContainer">
+                    <span class="font-bold text-gray-800 text-sm mb-3">💤 Inactive</span>
+                    <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
+                </label>
+            </div>
+            <div class="h-24"></div> 
+            <div class="fixed bottom-[96px] left-4 right-4 z-20">
+                <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-xl active:scale-95 transition-transform">
+                    Log Workout
+                </button>
+            </div>
         </div>
 
         <div id="screen-history" class="hidden">
