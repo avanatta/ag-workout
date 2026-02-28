@@ -296,12 +296,20 @@ function renderExerciseList(category) {
     list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No active exercises.</div>';
 }
         
-        function renderHistory() {
+       function renderHistory() {
             const user = document.getElementById('userToggle').value;
+            const selectedExercise = document.getElementById('historyExerciseToggle').value;
             const list = document.getElementById('historyList');
-            const filtered = historyData.filter(log => log.user_name === user);
             
-            if (filtered.length === 0) return list.innerHTML = '<div class="p-4 text-center">No logs yet.</div>';
+            // Filter by user AND optionally by the dropdown selection
+            const filtered = historyData.filter(log => {
+                const matchesUser = log.user_name === user;
+                const matchesExercise = !selectedExercise || log.exercise_name === selectedExercise;
+                return matchesUser && matchesExercise;
+            });
+            
+            if (filtered.length === 0) return list.innerHTML = '<div class="p-4 text-center text-gray-400">No logs found.</div>';
+            
             list.innerHTML = filtered.map(log => `
                 <div class="p-4 flex justify-between items-center group">
                     <div class="flex-1">
@@ -332,6 +340,9 @@ function renderExerciseList(category) {
             const canvas = document.getElementById('progressChart');
             const container = document.getElementById('chartContainer');
             
+            // Update the history list below the chart
+            renderHistory();
+            
             if (!exerciseName) {
                 container.classList.add('hidden');
                 return;
@@ -351,7 +362,7 @@ function renderExerciseList(category) {
                     datasets: [{
                         label: exerciseName,
                         data: data,
-                        borderColor: user === 'Alex' ? '#10B981' : '#EC4899', // Gen gets Pink
+                        borderColor: user === 'Alex' ? '#10B981' : '#EC4899', 
                         backgroundColor: user === 'Alex' ? '#D1FAE5' : '#FCE7F3',
                         tension: 0.4,
                         fill: true
@@ -359,7 +370,7 @@ function renderExerciseList(category) {
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-        }        
+        }
 
         function openLogger(ex) {
             currentExercise = ex;
