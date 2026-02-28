@@ -496,6 +496,19 @@
 
         async function submitWorkout() {
             const btn = document.getElementById('submitBtn');
+            const user = document.getElementById('userToggle').value;
+            const currentDate = new Date().toLocaleDateString('en-GB');
+            const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
+    
+            // Check if a log already exists for today
+            const alreadyLogged = userLogs.some(l => l.date === currentDate);
+            if (alreadyLogged) {
+                const proceed = confirm(`You already logged ${currentExercise.name} today. Are you sure you want to log it again?`);
+                if (!proceed) return; // Stop the save if they click Cancel
+            }
+    
+            const btn = document.getElementById('submitBtn');
+
             btn.innerText = "Saving...";
             btn.disabled = true;
         
