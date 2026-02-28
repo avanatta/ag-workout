@@ -29,6 +29,10 @@
         
         <div id="screen-categories">
             <h2 class="font-bold text-gray-500 mb-2 uppercase text-sm">Categories</h2>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold text-gray-500 uppercase text-sm">Categories</h2>
+                <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
+            </div>
             <div id="categoryList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
                 <div class="p-4 text-center text-gray-400">Loading categories...</div>
             </div>
@@ -111,6 +115,51 @@
             <span class="text-xs font-semibold mt-1">History</span>
         </button>
     </div>
+    <div id="screen-add-exercise" class="hidden">
+            <button onclick="showScreen('categories')" class="text-blue-500 font-semibold mb-4 flex items-center">
+                <span>&larr; Back</span>
+            </button>
+            <h1 class="text-2xl font-bold mb-4 text-orange-600">New Exercise</h1>
+            
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Exercise Name</label>
+                    <input type="text" id="newExName" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" placeholder="e.g. Hammer Curls">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Category</label>
+                    <select id="newExCategory" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none bg-white">
+                        <option value="Arms">Arms</option>
+                        <option value="Abs">Abs</option>
+                        <option value="Legs">Legs</option>
+                        <option value="Cardio">Cardio</option>
+                        <option value="Back">Back</option>
+                        <option value="Chest">Chest</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Track These Units:</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
+                            <input type="checkbox" value="sets" class="unit-check" checked> <span>Sets</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
+                            <input type="checkbox" value="reps" class="unit-check" checked> <span>Reps</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
+                            <input type="checkbox" value="weight" class="unit-check" checked> <span>Weight</span>
+                        </label>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
+                            <input type="checkbox" value="time" class="unit-check"> <span>Time</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="addExBtn" onclick="saveNewExercise()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl mt-6 shadow-lg active:scale-95 transition-transform">
+                Save to Exercises
+            </button>
+        </div>
 
     <script>
         const API_URL = "https://sheetdb.io/api/v1/jb1t5l576h532";
@@ -429,6 +478,46 @@
         }
 
         init(); 
+        async function saveNewExercise() {
+    const btn = document.getElementById('addExBtn');
+    const name = document.getElementById('newExName').value;
+    const category = document.getElementById('newExCategory').value;
+    const selectedUnits = Array.from(document.querySelectorAll('.unit-check:checked')).map(cb => cb.value).join(',');
+
+    if (!name) return alert("Please enter a name.");
+
+    btn.innerText = "Adding...";
+    btn.disabled = true;
+
+    const newExercise = {
+        id: crypto.randomUUID(),
+        name: name,
+        category: category,
+        units: selectedUnits,
+        gif_url: "" // You can manually add a link later in the sheet
+    };
+
+    try {
+        const res = await fetch(`${API_URL}?sheet=Exercises`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: [newExercise] })
+        });
+
+        if (res.ok) {
+            alert(`${name} added!`);
+            document.getElementById('newExName').value = ""; // Clear input
+            await fetchExercises(); // Refresh internal list
+            renderCategories(); // Update UI
+            showScreen('categories');
+        }
+    } catch (err) {
+        alert("Error adding exercise.");
+    }
+
+    btn.innerText = "Save to Exercises";
+    btn.disabled = false;
+}
     </script>
 </body>
 </html>
