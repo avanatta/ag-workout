@@ -56,17 +56,11 @@
 
 
         <div id="screen-logger" class="hidden">
-            <button onclick="showScreen('exercises')" class="text-blue-500 font-semibold mb-4 flex items-center">
-                <span>&larr; Back</span>
-            </button>
-            <h1 id="loggerTitle" class="text-2xl font-bold mb-4">Exercise</h1>
-            
-            <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
-            
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
-                <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
-                <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
-                <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="showScreen('exercises')" class="text-blue-500 font-semibold flex items-center">
+                    <span class="text-xl mr-1">&larr;</span> Back
+                </button>
+                <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-right">Exercise</h1>
             </div>
 
            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
