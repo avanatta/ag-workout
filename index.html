@@ -274,7 +274,7 @@
             showScreen('exercises');
         }
 
-        function renderExerciseList(category) {
+     function renderExerciseList(category) {
             const list = document.getElementById('exerciseList');
             const user = document.getElementById('userToggle').value.toLowerCase();
             const showInactive = document.getElementById('showInactiveCheck').checked;
@@ -282,8 +282,13 @@
             const filtered = exercises.filter(ex => ex.category === category);
             
             const htmlOutput = filtered.map(ex => {
-                const isInactive = String(ex[`inactive_${user}`]).toLowerCase() === 'true';
-                const isReady = String(ex[`levelup_${user}`]).toLowerCase() === 'true';
+                // Find headers even if they are capitalized in the sheet
+                const inactiveKey = Object.keys(ex).find(k => k.toLowerCase() === `inactive_${user}`);
+                const readyKey = Object.keys(ex).find(k => k.toLowerCase() === `levelup_${user}`);
+
+                // Trim spaces and check for "true"
+                const isInactive = inactiveKey ? String(ex[inactiveKey]).trim().toLowerCase() === 'true' : false;
+                const isReady = readyKey ? String(ex[readyKey]).trim().toLowerCase() === 'true' : false;
                 
                 if (isInactive && !showInactive) return '';
 
@@ -304,7 +309,6 @@
 
             list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No active exercises.</div>';
         }
-        
         function renderHistory() {
             const user = document.getElementById('userToggle').value;
             const selectedExercise = document.getElementById('historyExerciseToggle').value;
@@ -457,11 +461,14 @@
             }
 
             const userLower = user.toLowerCase();
-            const isReady = String(currentExercise[`levelup_${userLower}`]).toLowerCase() === 'true';
-            const isInactive = String(currentExercise[`inactive_${userLower}`]).toLowerCase() === 'true';
+            const readyKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
+            const inactiveKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `inactive_${userLower}`);
+
+            const isReady = readyKey ? String(currentExercise[readyKey]).trim().toLowerCase() === 'true' : false;
+            const isInactive = inactiveKey ? String(currentExercise[inactiveKey]).trim().toLowerCase() === 'true' : false;
 
             document.getElementById('levelUpCheck').checked = isReady;
-            document.getElementById('inactiveCheck').checked = isInactive;
+            document.getElementById('inactiveCheck').checked = isInactive;;
 
             const levelContainer = document.getElementById('levelUpContainer');
             if (isReady) levelContainer.classList.replace('border-transparent', 'border-blue-500');
