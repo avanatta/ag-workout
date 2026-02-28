@@ -264,38 +264,43 @@
             `).join('');
         }
         
-        function openCategory(category) {
-            document.getElementById('categoryTitle').innerText = category;
-            const list = document.getElementById('exerciseList');
-            const user = document.getElementById('userToggle').value;
-            const showInactive = document.getElementById('showInactiveCheck').checked;
-            
-            const filtered = exercises.filter(ex => ex.category === category);
-            
-            list.innerHTML = filtered.map(ex => {
-                const isInactive = localStorage.getItem(`inactive_${user}_${ex.name}`) === 'true';
-                
-                // If it is inactive and the box isn't checked, hide it completely!
-                if (isInactive && !showInactive) return '';
+function openCategory(category) {
+    document.getElementById('categoryTitle').innerText = category;
+    renderExerciseList(category);
+    showScreen('exercises');
+}
 
-                const isReady = localStorage.getItem(`levelup_${user}_${ex.name}`) === 'true';
-                const readyBadge = isReady ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
-                const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
-                
-                return `
-                <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
-                    <div class="flex items-center">
-                        <span class="font-bold text-gray-800">${ex.name}</span>
-                        ${readyBadge}
-                        ${inactiveBadge}
-                    </div>
-                    <span class="text-gray-300">&rang;</span>
-                </div>
-                `;
-            }).join('');
-            
-            showScreen('exercises');
-        }
+function renderExerciseList(category) {
+    const list = document.getElementById('exerciseList');
+    const user = document.getElementById('userToggle').value;
+    const showInactive = document.getElementById('showInactiveCheck').checked;
+    
+    const filtered = exercises.filter(ex => ex.category === category);
+    
+    const htmlOutput = filtered.map(ex => {
+        const isInactive = localStorage.getItem(`inactive_${user}_${ex.name}`) === 'true';
+        
+        // If it's inactive and we aren't showing inactive, hide it
+        if (isInactive && !showInactive) return '';
+
+        const isReady = localStorage.getItem(`levelup_${user}_${ex.name}`) === 'true';
+        const readyBadge = isReady ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
+        const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
+        
+        return `
+        <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
+            <div class="flex items-center">
+                <span class="font-bold text-gray-800">${ex.name}</span>
+                ${readyBadge}
+                ${inactiveBadge}
+            </div>
+            <span class="text-gray-300">&rang;</span>
+        </div>
+        `;
+    }).join('');
+
+    list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No exercises found.</div>';
+}
 
         function renderHistory() {
             const user = document.getElementById('userToggle').value;
@@ -615,6 +620,11 @@
                 container.classList.replace('border-transparent', 'border-gray-400');
             } else {
                 container.classList.replace('border-gray-400', 'border-transparent');
+            }
+        
+            // Refresh the exercise list in the background so it's ready when you go back
+            if (currentExercise && currentExercise.category) {
+                renderExerciseList(currentExercise.category);
             }
         }
         async function saveNewExercise() {
