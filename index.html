@@ -562,11 +562,14 @@ function renderExerciseList(category) {
             try {
                 await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ [levelUpColumn]: "false" })
+                    headers: { 
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json' 
+                    },
+                    // THE FIX: Added the "data" wrapper here as well
+                    body: JSON.stringify({ data: { [levelUpColumn]: "false" } })
                 });
                 
-                // Refresh local data so the badge disappears immediately
                 await fetchExercises(); 
             } catch (err) {
                 console.error("Auto-reset failed:", err);
@@ -607,9 +610,8 @@ function renderExerciseList(category) {
 }
 async function updateExerciseState(type, isChecked) {
     const user = document.getElementById('userToggle').value.toLowerCase();
-    const column = `${type}_${user}`; // e.g., levelup_alex or inactive_gen
+    const column = `${type}_${user}`; 
     
-    // Optimistically update the UI container color
     const containerId = type === 'levelup' ? 'levelUpContainer' : 'inactiveContainer';
     const activeColor = type === 'levelup' ? 'border-blue-500' : 'border-gray-400';
     const container = document.getElementById(containerId);
@@ -623,13 +625,15 @@ async function updateExerciseState(type, isChecked) {
     try {
         await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ [column]: isChecked ? "true" : "false" })
+            headers: { 
+                'Accept': 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            // THE FIX: SheetDB requires the "data" wrapper
+            body: JSON.stringify({ data: { [column]: isChecked ? "true" : "false" } })
         });
         
-// Refresh the local exercises list so the badges update
         await fetchExercises();
-        // Always refresh in the background so it's ready when you click Back
         if (currentExercise && currentExercise.category) {
             renderExerciseList(currentExercise.category);
         }
