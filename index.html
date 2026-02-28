@@ -44,7 +44,12 @@
             </button>
             <div class="flex justify-between items-center mb-2">
                 <h2 id="categoryTitle" class="font-bold text-gray-500 uppercase text-sm">Workouts</h2>
-                <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center text-xs font-semibold text-gray-400 cursor-pointer">
+                        <input type="checkbox" id="showInactiveCheck" onchange="openCategory(document.getElementById('categoryTitle').innerText)" class="mr-1"> Show Inactive
+                    </label>
+                    <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
+                </div>
             </div>
             <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
         </div>
@@ -86,7 +91,20 @@
                     <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 my-4 hidden">60</div>
                 </div>
             </div>
-
+            <label class="bg-white p-4 rounded-xl shadow-sm mb-6 flex justify-between items-center cursor-pointer border-2 border-transparent transition-colors" id="levelUpContainer">
+                <div>
+                    <h3 class="font-bold text-gray-800 text-sm">🚀 Ready to Level Up</h3>
+                    <p class="text-xs text-gray-500">Target increase for next session</p>
+                </div>
+                <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
+            </label>
+            <label class="bg-white p-4 rounded-xl shadow-sm mb-6 flex justify-between items-center cursor-pointer border-2 border-transparent transition-colors" id="inactiveContainer">
+                <div>
+                    <h3 class="font-bold text-gray-800 text-sm">💤 Mark as Inactive</h3>
+                    <p class="text-xs text-gray-500">Hide from the active workout list</p>
+                </div>
+                <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
+            </label>
             <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mt-6">
                 Log Workout
             </button>
@@ -222,6 +240,10 @@
             loadData();
             renderHistory();
             renderChart();
+            // Refresh badges if currently looking at the exercise list
+            if (!document.getElementById('screen-exercises').classList.contains('hidden')) {
+                openCategory(document.getElementById('categoryTitle').innerText);
+            }
         }
 
         function renderCategories() {
@@ -241,16 +263,37 @@
                 <option value="${cat}">${cat}</option>
             `).join('');
         }
+        
         function openCategory(category) {
             document.getElementById('categoryTitle').innerText = category;
             const list = document.getElementById('exerciseList');
+            const user = document.getElementById('userToggle').value;
+            const showInactive = document.getElementById('showInactiveCheck').checked;
+            
             const filtered = exercises.filter(ex => ex.category === category);
-            list.innerHTML = filtered.map(ex => `
-                <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50">
-                    <span class="font-bold text-gray-800">${ex.name}</span>
+            
+            list.innerHTML = filtered.map(ex => {
+                const isInactive = localStorage.getItem(`inactive_${user}_${ex.name}`) === 'true';
+                
+                // If it is inactive and the box isn't checked, hide it completely!
+                if (isInactive && !showInactive) return '';
+
+                const isReady = localStorage.getItem(`levelup_${user}_${ex.name}`) === 'true';
+                const readyBadge = isReady ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
+                const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
+                
+                return `
+                <div onclick='openLogger(${JSON.stringify(ex)})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
+                    <div class="flex items-center">
+                        <span class="font-bold text-gray-800">${ex.name}</span>
+                        ${readyBadge}
+                        ${inactiveBadge}
+                    </div>
                     <span class="text-gray-300">&rang;</span>
                 </div>
-            `).join('');
+                `;
+            }).join('');
+            
             showScreen('exercises');
         }
 
@@ -391,6 +434,24 @@
                 document.getElementById('lastSessionText').innerText = "No previous data.";
                 document.getElementById('prText').classList.add('hidden');
             }
+            // Sync Level Up Toggle State
+            const isReady = localStorage.getItem(`levelup_${user}_${currentExercise.name}`) === 'true';
+            document.getElementById('levelUpCheck').checked = isReady;
+            const container = document.getElementById('levelUpContainer');
+            if (isReady) {
+                container.classList.replace('border-transparent', 'border-blue-500');
+            } else {
+                container.classList.replace('border-blue-500', 'border-transparent');
+            }
+            // Sync Inactive Toggle State
+            const isInactive = localStorage.getItem(`inactive_${user}_${currentExercise.name}`) === 'true';
+            document.getElementById('inactiveCheck').checked = isInactive;
+            const inactiveContainer = document.getElementById('inactiveContainer');
+            if (isInactive) {
+                inactiveContainer.classList.replace('border-transparent', 'border-gray-400');
+            } else {
+                inactiveContainer.classList.replace('border-gray-400', 'border-transparent');
+            }
         }
 
         function toggleTimer() {
@@ -516,6 +577,34 @@
         alert("Failed to delete log.");
     }
 }
+        function toggleLevelUp() {
+            const user = document.getElementById('userToggle').value;
+            const isChecked = document.getElementById('levelUpCheck').checked;
+            
+            // Save to the phone's local storage
+            localStorage.setItem(`levelup_${user}_${currentExercise.name}`, isChecked);
+            
+            // Highlight the box visually
+            const container = document.getElementById('levelUpContainer');
+            if (isChecked) {
+                container.classList.replace('border-transparent', 'border-blue-500');
+            } else {
+                container.classList.replace('border-blue-500', 'border-transparent');
+            }
+        }
+        function toggleInactive() {
+            const user = document.getElementById('userToggle').value;
+            const isChecked = document.getElementById('inactiveCheck').checked;
+            
+            localStorage.setItem(`inactive_${user}_${currentExercise.name}`, isChecked);
+            
+            const container = document.getElementById('inactiveContainer');
+            if (isChecked) {
+                container.classList.replace('border-transparent', 'border-gray-400');
+            } else {
+                container.classList.replace('border-gray-400', 'border-transparent');
+            }
+        }
         async function saveNewExercise() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
