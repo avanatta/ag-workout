@@ -138,14 +138,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase">Category</label>
-                    <select id="newExCategory" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none bg-white">
-                        <option value="Arms">Arms</option>
-                        <option value="Abs">Abs</option>
-                        <option value="Legs">Legs</option>
-                        <option value="Cardio">Cardio</option>
-                        <option value="Back">Back</option>
-                        <option value="Chest">Chest</option>
-                    </select>
+                    <select id="newExCategory" class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none bg-white"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Track These Units:</label>
@@ -633,9 +626,10 @@ async function updateExerciseState(type, isChecked) {
             body: JSON.stringify({ [column]: isChecked ? "true" : "false" })
         });
         
-        // Refresh the local exercises list so the badges update
+// Refresh the local exercises list so the badges update
         await fetchExercises();
-        if (!document.getElementById('screen-exercises').classList.contains('hidden')) {
+        // Always refresh in the background so it's ready when you click Back
+        if (currentExercise && currentExercise.category) {
             renderExerciseList(currentExercise.category);
         }
     } catch (err) {
