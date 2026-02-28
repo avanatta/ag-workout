@@ -30,11 +30,14 @@
         <div id="screen-categories">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="font-bold text-gray-500 uppercase text-sm">Categories</h2>
-                <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
-            </div>
+                </div>
             <div id="categoryList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
                 <div class="p-4 text-center text-gray-400">Loading categories...</div>
             </div>
+            
+            <button onclick="showScreen('add-exercise')" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
+                +
+            </button>
         </div>
 
         <div id="screen-exercises" class="hidden">
@@ -47,10 +50,13 @@
                     <label class="flex items-center text-xs font-semibold text-gray-400 cursor-pointer">
                         <input type="checkbox" id="showInactiveCheck" onchange="openCategory(document.getElementById('categoryTitle').textContent)" class="mr-1"> Show Inactive
                     </label>
-                    <button onclick="showScreen('add-exercise')" class="text-orange-500 text-sm font-bold">+ Add New</button>
-                </div>
+                    </div>
             </div>
             <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
+
+            <button onclick="showScreen('add-exercise')" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
+                +
+            </button>
         </div>
 
         <div id="screen-logger" class="hidden">
@@ -330,7 +336,11 @@
                             <span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'pink'}-100 text-${log.user_name === 'Alex' ? 'green' : 'pink'}-800 font-bold">${log.user_name}</span>
                         </div>
                         <div class="text-sm text-gray-600">${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}</div>
-                        <div class="text-xs text-gray-400 mt-1">${log.date}</div>
+                        
+                        <div class="text-xs mt-1 flex items-center space-x-2">
+                            <span class="text-gray-400">${log.date}</span>
+                            ${log.category ? `<span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">${log.category}</span>` : ''}
+                        </div>
                     </div>
                     <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-600 p-2 text-xl">
                         🗑️
