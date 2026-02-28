@@ -195,8 +195,10 @@
         </button>
     </div>
 
-    <script>
-        const API_URL = "https://sheetdb.io/api/v1/jb1t5l576h532";
+ <script>
+        // NEW GOOGLE APPS SCRIPT URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbzpfaP9gXYvAIA9CVeydWT5u8wjZAHtl_LUXZJSJHhyJF07Ft2UbVnDsjEAzJ1QBYRM/exec";
+        
         let exercises = [];
         let historyData = [];
         let categories = [];
@@ -206,6 +208,15 @@
         let progressChartInstance = null;
         let loggerChartInstance = null;
         const dingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+
+        // Helper function for Google Apps Script requests to avoid CORS issues
+        async function googleFetch(payload) {
+            return await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+        }
 
         async function init() {
             await Promise.all([fetchExercises(), fetchHistory()]);
@@ -219,7 +230,7 @@
         }
 
         async function fetchHistory() {
-            const res = await fetch(API_URL);
+            const res = await fetch(API_URL, { cache: 'no-store' });
             let rawData = await res.json();
             
             historyData = rawData.sort((a, b) => {
@@ -233,15 +244,14 @@
             renderChart();
         }
 
- function showScreen(screen) {
+        function showScreen(screen) {
             ['categories', 'exercises', 'logger', 'history', 'add-exercise'].forEach(s => {
                 document.getElementById(`screen-${s}`).classList.add('hidden');
             });
             document.getElementById(`screen-${screen}`).classList.remove('hidden');
             
-            // Handle Dynamic Header Back Button
             const backBtn = document.getElementById('headerBackBtn');
-            backBtn.classList.remove('hidden', 'invisible'); // Clears both to be safe
+            backBtn.classList.remove('hidden', 'invisible');
             
             if (screen === 'exercises') {
                 backBtn.onclick = () => showScreen('categories');
@@ -250,10 +260,9 @@
             } else if (screen === 'add-exercise') {
                 backBtn.onclick = () => showScreen('categories');
             } else {
-                backBtn.classList.add('invisible'); // Uses invisible to hold the height
+                backBtn.classList.add('invisible'); 
             }
 
-            // Handle Bottom Tab Bar
             document.querySelectorAll('.fixed.bottom-0 button').forEach(btn => btn.classList.replace('text-blue-600', 'text-gray-400'));
             if(['categories', 'exercises', 'logger', 'add-exercise'].includes(screen)) {
                 document.querySelectorAll('.fixed.bottom-0 button')[0].classList.replace('text-gray-400', 'text-blue-600');
@@ -292,7 +301,7 @@
             showScreen('exercises');
         }
 
-     function renderExerciseList(category) {
+        function renderExerciseList(category) {
             const list = document.getElementById('exerciseList');
             const user = document.getElementById('userToggle').value.toLowerCase();
             const showInactive = document.getElementById('showInactiveCheck').checked;
@@ -300,11 +309,9 @@
             const filtered = exercises.filter(ex => ex.category === category);
             
             const htmlOutput = filtered.map(ex => {
-                // Find headers even if they are capitalized in the sheet
                 const inactiveKey = Object.keys(ex).find(k => k.toLowerCase() === `inactive_${user}`);
                 const readyKey = Object.keys(ex).find(k => k.toLowerCase() === `levelup_${user}`);
 
-                // Trim spaces and check for "true"
                 const isInactive = inactiveKey ? String(ex[inactiveKey]).trim().toLowerCase() === 'true' : false;
                 const isReady = readyKey ? String(ex[readyKey]).trim().toLowerCase() === 'true' : false;
                 
@@ -327,6 +334,7 @@
 
             list.innerHTML = htmlOutput || '<div class="p-4 text-center text-gray-400">No active exercises.</div>';
         }
+        
         function renderHistory() {
             const user = document.getElementById('userToggle').value;
             const selectedExercise = document.getElementById('historyExerciseToggle').value;
@@ -406,7 +414,7 @@
         }
 
         function openLogger(ex) {
-            resetTimer();
+            resetTimer(); 
             currentExercise = ex;
             document.getElementById('loggerTitle').innerText = ex.name;
             
@@ -491,7 +499,7 @@
             const isInactive = inactiveKey ? String(currentExercise[inactiveKey]).trim().toLowerCase() === 'true' : false;
 
             document.getElementById('levelUpCheck').checked = isReady;
-            document.getElementById('inactiveCheck').checked = isInactive;;
+            document.getElementById('inactiveCheck').checked = isInactive;
 
             const levelContainer = document.getElementById('levelUpContainer');
             if (isReady) levelContainer.classList.replace('border-transparent', 'border-blue-500');
@@ -565,7 +573,7 @@
             });
         }
 
-function toggleTimer() {
+        function toggleTimer() {
             const btn = document.getElementById('timerBtn');
             const resetBtn = document.getElementById('resetTimerBtn');
             const display = document.getElementById('countdownDisplay');
@@ -578,13 +586,11 @@ function toggleTimer() {
             };
 
             if (timerInterval) {
-                // Timer is running -> Pause it
                 clearInterval(timerInterval);
                 timerInterval = null;
                 btn.innerText = "Resume";
                 btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-yellow-500";
             } else {
-                // Timer is paused or stopped -> Start/Resume it
                 if (countdownValue <= 0 || display.classList.contains('hidden')) {
                     let rawValue = parseInt(document.getElementById('time').value) || 0;
                     countdownValue = isCardio ? rawValue * 60 : rawValue; 
@@ -630,7 +636,7 @@ function toggleTimer() {
             btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-green-500";
             resetBtn.classList.add('hidden');
         }
-        
+
         async function submitWorkout() {
             const btn = document.getElementById('submitBtn');
             const user = document.getElementById('userToggle').value;
@@ -679,11 +685,8 @@ function toggleTimer() {
             };
         
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: [log] })
-                });
+                // Send custom POST tunnel to Google Apps Script
+                await googleFetch({ method: "POST", data: log });
                 
                 if (isPR) {
                     confetti({ 
@@ -697,13 +700,12 @@ function toggleTimer() {
                     const levelUpColumn = `levelup_${userLower}`;
                     
                     try {
-                        await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
-                            method: 'PATCH',
-                            headers: { 
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json' 
-                            },
-                            body: JSON.stringify({ data: { [levelUpColumn]: "false" } })
+                        // Send custom PATCH tunnel to Google Apps Script
+                        await googleFetch({
+                            method: "PATCH",
+                            sheet: "Exercises",
+                            id: currentExercise.id,
+                            data: { [levelUpColumn]: "false" }
                         });
                         
                         await fetchExercises(); 
@@ -728,15 +730,9 @@ function toggleTimer() {
             if (!confirm("Are you sure you want to delete this log?")) return;
 
             try {
-                const res = await fetch(`${API_URL}/id/${logId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (res.ok) {
-                    await fetchHistory();
-                    alert("Log deleted successfully.");
-                }
+                // Send custom DELETE tunnel to Google Apps Script
+                await googleFetch({ method: "DELETE", id: logId });
+                await fetchHistory();
             } catch (err) {
                 alert("Failed to delete log.");
             }
@@ -757,13 +753,12 @@ function toggleTimer() {
             }
 
             try {
-                await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
-                    method: 'PATCH',
-                    headers: { 
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify({ data: { [column]: isChecked ? "true" : "false" } })
+                // Send custom PATCH tunnel to Google Apps Script
+                await googleFetch({
+                    method: "PATCH",
+                    sheet: "Exercises",
+                    id: currentExercise.id,
+                    data: { [column]: isChecked ? "true" : "false" }
                 });
                 
                 await fetchExercises();
@@ -803,19 +798,14 @@ function toggleTimer() {
             };
 
             try {
-                const res = await fetch(`${API_URL}?sheet=Exercises`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: [newExercise] })
-                });
+                // Send custom POST tunnel to Google Apps Script
+                await googleFetch({ method: "POST", sheet: "Exercises", data: newExercise });
 
-                if (res.ok) {
-                    alert(`${name} added!`);
-                    document.getElementById('newExName').value = ""; 
-                    await fetchExercises(); 
-                    renderCategories(); 
-                    showScreen('categories');
-                }
+                alert(`${name} added!`);
+                document.getElementById('newExName').value = ""; 
+                await fetchExercises(); 
+                renderCategories(); 
+                showScreen('categories');
             } catch (err) {
                 alert("Error adding exercise.");
             }
