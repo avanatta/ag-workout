@@ -551,16 +551,35 @@ function renderExerciseList(category) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ data: [log] })
                 });
-        
-                if (isPR) {
-                    confetti({ 
-                        particleCount: 150, 
-                        spread: 70, 
-                        origin: { y: 0.6 },
-                        colors: user === 'Alex' ? ['#10B981', '#ffffff'] : ['#EC4899', '#ffffff'] // Gen's Confetti is Pink!
-                    });
-                    await new Promise(r => setTimeout(r, 2000));
-                }
+            // After successfully logging the workout:
+        if (isPR) {
+            confetti({ 
+                particleCount: 150, 
+                spread: 70, 
+                origin: { y: 0.6 },
+                colors: user === 'Alex' ? ['#10B981', '#ffffff'] : ['#EC4899', '#ffffff'] 
+            });
+
+            // AUTO-RESET: Since you hit a PR, you've "Leveled Up"!
+            // We tell the Exercise sheet to set your levelup status to false.
+            const userLower = user.toLowerCase();
+            const levelUpColumn = `levelup_${userLower}`;
+            
+            try {
+                await fetch(`${API_URL}/id/${currentExercise.id}?sheet=Exercises`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ [levelUpColumn]: "false" })
+                });
+                
+                // Refresh local data so the badge disappears immediately
+                await fetchExercises(); 
+            } catch (err) {
+                console.error("Auto-reset failed:", err);
+            }
+
+            await new Promise(r => setTimeout(r, 2000));
+        }
         
                 await fetchHistory(); 
                 // Don't leave the page, just reload the data
