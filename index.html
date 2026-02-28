@@ -507,18 +507,14 @@
                 if (!proceed) return; // Stop the save if they click Cancel
             }
     
-            const btn = document.getElementById('submitBtn');
-
             btn.innerText = "Saving...";
             btn.disabled = true;
         
-            const user = document.getElementById('userToggle').value;
             const weightVal = parseFloat(document.getElementById('weight').value) || 0;
             const repsVal = parseFloat(document.getElementById('reps').value) || 0;
             const timeVal = parseFloat(document.getElementById('time').value) || 0;
             
             const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
-            const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
         
             const bestWeight = Math.max(0, ...userLogs.map(l => parseFloat(l.weight) || 0));
             const bestReps = Math.max(0, ...userLogs.map(l => parseFloat(l.reps) || 0));
@@ -573,6 +569,7 @@
             btn.innerText = "Log Workout";
             btn.disabled = false;
         }
+        
         async function deleteLog(logId) {
     if (!confirm("Are you sure you want to delete this log?")) return;
 
