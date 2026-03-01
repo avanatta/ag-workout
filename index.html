@@ -229,11 +229,25 @@
             categories = [...new Set(exercises.map(ex => ex.category))].sort();
         }
 
-        async function fetchHistory() {
-            // Explicitly requesting the "Logs" sheet here
+async function fetchHistory() {
             const res = await fetch(`${API_URL}?sheet=Logs`, { cache: 'no-store' });
             let rawData = await res.json();
             
+            // NEW: Clean up Google's raw date strings and force them into DD/MM/YYYY
+            rawData = rawData.map(log => {
+                // If the date exists but isn't formatted with slashes yet
+                if (log.date && !log.date.includes('/')) {
+                    const d = new Date(log.date);
+                    if (!isNaN(d.getTime())) {
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const year = d.getFullYear();
+                        log.date = `${day}/${month}/${year}`;
+                    }
+                }
+                return log;
+            });
+
             historyData = rawData.sort((a, b) => {
                 const [dayA, monthA, yearA] = a.date.split('/');
                 const [dayB, monthB, yearB] = b.date.split('/');
