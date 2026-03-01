@@ -652,7 +652,7 @@ async function fetchHistory() {
             resetBtn.classList.add('hidden');
         }
 
-        async function submitWorkout() {
+async function submitWorkout() {
             const btn = document.getElementById('submitBtn');
             const user = document.getElementById('userToggle').value;
             const currentDate = new Date().toLocaleDateString('en-GB');
@@ -699,9 +699,12 @@ async function fetchHistory() {
                 time: document.getElementById('time').value
             };
         
-                try {
-                // Added sheet: "Logs" to tell Google exactly where to save it
+            try {
                 await googleFetch({ method: "POST", sheet: "Logs", data: log });
+                
+                // Show success state
+                btn.innerText = "Saved! ✅";
+                btn.classList.replace('bg-blue-600', 'bg-green-500');
                 
                 if (isPR) {
                     confetti({ 
@@ -712,7 +715,6 @@ async function fetchHistory() {
                     });
 
                     const userLower = user.toLowerCase();
-                    // Find the exact column header name from the spreadsheet
                     const exactLevelUpKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
                     
                     if (exactLevelUpKey) {
@@ -731,6 +733,9 @@ async function fetchHistory() {
                     }
 
                     await new Promise(r => setTimeout(r, 2000));
+                } else {
+                    // Pause to show the success message for normal logs
+                    await new Promise(r => setTimeout(r, 1500));
                 }
         
                 await fetchHistory(); 
@@ -739,7 +744,9 @@ async function fetchHistory() {
                 alert("Failed to save log."); 
             }
         
+            // Revert button state
             btn.innerText = "Log Workout";
+            btn.classList.replace('bg-green-500', 'bg-blue-600');
             btn.disabled = false;
         }
         
