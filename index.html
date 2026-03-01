@@ -712,19 +712,22 @@ async function fetchHistory() {
                     });
 
                     const userLower = user.toLowerCase();
-                    const levelUpColumn = `levelup_${userLower}`;
+                    // Find the exact column header name from the spreadsheet
+                    const exactLevelUpKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
                     
-                    try {
-                        await googleFetch({
-                            method: "PATCH",
-                            sheet: "Exercises",
-                            id: currentExercise.id,
-                            data: { [levelUpColumn]: "false" }
-                        });
-                        
-                        await fetchExercises(); 
-                    } catch (err) {
-                        console.error("Auto-reset failed:", err);
+                    if (exactLevelUpKey) {
+                        try {
+                            await googleFetch({
+                                method: "PATCH",
+                                sheet: "Exercises",
+                                id: currentExercise.id,
+                                data: { [exactLevelUpKey]: "false" }
+                            });
+                            
+                            await fetchExercises(); 
+                        } catch (err) {
+                            console.error("Auto-reset failed:", err);
+                        }
                     }
 
                     await new Promise(r => setTimeout(r, 2000));
@@ -753,8 +756,9 @@ async function fetchHistory() {
         }
 
         async function updateExerciseState(type, isChecked) {
-            const user = document.getElementById('userToggle').value.toLowerCase();
-            const column = `${type}_${user}`; 
+            const userLower = document.getElementById('userToggle').value.toLowerCase();
+            // Find the exact column header name from the spreadsheet
+            const exactColumnName = Object.keys(currentExercise).find(k => k.toLowerCase() === `${type}_${userLower}`); 
             
             const containerId = type === 'levelup' ? 'levelUpContainer' : 'inactiveContainer';
             const activeColor = type === 'levelup' ? 'border-blue-500' : 'border-gray-400';
@@ -766,21 +770,22 @@ async function fetchHistory() {
                 container.classList.replace(activeColor, 'border-transparent');
             }
 
-            try {
-                // Send custom PATCH tunnel to Google Apps Script
-                await googleFetch({
-                    method: "PATCH",
-                    sheet: "Exercises",
-                    id: currentExercise.id,
-                    data: { [column]: isChecked ? "true" : "false" }
-                });
-                
-                await fetchExercises();
-                if (currentExercise && currentExercise.category) {
-                    renderExerciseList(currentExercise.category);
+            if (exactColumnName) {
+                try {
+                    await googleFetch({
+                        method: "PATCH",
+                        sheet: "Exercises",
+                        id: currentExercise.id,
+                        data: { [exactColumnName]: isChecked ? "true" : "false" }
+                    });
+                    
+                    await fetchExercises();
+                    if (currentExercise && currentExercise.category) {
+                        renderExerciseList(currentExercise.category);
+                    }
+                } catch (err) {
+                    console.error("Failed to sync with Google Sheets:", err);
                 }
-            } catch (err) {
-                console.error("Failed to sync with Google Sheets:", err);
             }
         }
 
