@@ -728,6 +728,9 @@ async function submitWorkout() {
                             
                             await fetchExercises(); 
                             currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
+                            if (currentExercise && currentExercise.category) {
+                                renderExerciseList(currentExercise.category);
+                            }
                         } catch (err) {
                             console.error("Auto-reset failed:", err);
                         }
