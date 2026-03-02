@@ -727,6 +727,7 @@ async function submitWorkout() {
                             });
                             
                             await fetchExercises(); 
+                            currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
                         } catch (err) {
                             console.error("Auto-reset failed:", err);
                         }
@@ -739,6 +740,7 @@ async function submitWorkout() {
                 }
         
                 await fetchHistory(); 
+                currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
                 loadData();
             } catch (err) { 
                 alert("Failed to save log."); 
@@ -764,7 +766,6 @@ async function submitWorkout() {
 
         async function updateExerciseState(type, isChecked) {
             const userLower = document.getElementById('userToggle').value.toLowerCase();
-            // Find the exact column header name from the spreadsheet
             const exactColumnName = Object.keys(currentExercise).find(k => k.toLowerCase() === `${type}_${userLower}`); 
             
             const containerId = type === 'levelup' ? 'levelUpContainer' : 'inactiveContainer';
@@ -778,6 +779,9 @@ async function submitWorkout() {
             }
 
             if (exactColumnName) {
+                // Optimistically update the memory so it doesn't revert on the next save
+                currentExercise[exactColumnName] = isChecked ? "true" : "false";
+                
                 try {
                     await googleFetch({
                         method: "PATCH",
@@ -787,6 +791,8 @@ async function submitWorkout() {
                     });
                     
                     await fetchExercises();
+                    currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
+                    
                     if (currentExercise && currentExercise.category) {
                         renderExerciseList(currentExercise.category);
                     }
