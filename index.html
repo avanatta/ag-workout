@@ -39,7 +39,7 @@
         <div id="screen-categories">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="font-bold text-gray-500 uppercase text-sm">Categories</h2>
-                </div>
+            </div>
             <div id="categoryList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
                 <div class="p-4 text-center text-gray-400">Loading categories...</div>
             </div>
@@ -56,7 +56,7 @@
                     <label class="flex items-center text-xs font-semibold text-gray-400 cursor-pointer">
                         <input type="checkbox" id="showInactiveCheck" onchange="openCategory(document.getElementById('categoryTitle').textContent)" class="mr-1"> Show Inactive
                     </label>
-                    </div>
+                </div>
             </div>
             <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
 
@@ -67,7 +67,7 @@
 
         <div id="screen-logger" class="hidden">
             <div class="flex items-center justify-between mb-4">
-                <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate ml-4 flex-1 text-left">Exercise</h1>
+                <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate flex-1 text-left pt-2">Exercise</h1>
             </div>
 
             <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
@@ -75,9 +75,9 @@
             <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
                 <div class="flex justify-between items-center cursor-pointer" onclick="toggleLoggerChart()">
                     <div class="flex-1">
-                        <h3 class="font-bold text-gray-800 text-sm mb-1">Session History</h3>
-                        <p id="lastSessionText" class="text-gray-600 text-sm">Loading...</p>
-                        <p id="prText" class="text-green-600 text-xs font-bold mt-1 hidden">Last increase: <span id="increaseDate"></span></p>
+                        <h3 class="font-bold text-gray-800 text-sm mb-2">Session History</h3>
+                        <div class="text-sm mb-1"><span class="font-bold text-green-600 mr-2">Alex:</span><span id="lastSessionText_Alex" class="text-gray-600">Loading...</span></div>
+                        <div class="text-sm"><span class="font-bold text-pink-500 mr-2">Gen:</span><span id="lastSessionText_Gen" class="text-gray-600">Loading...</span></div>
                     </div>
                     <div id="chartToggleIcon" class="text-gray-400 text-2xl transition-transform duration-300 hidden">▾</div>
                 </div>
@@ -87,42 +87,72 @@
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-green-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800 text-lg">Alex</h3>
+                    <div class="flex items-center space-x-3">
+                        <label class="flex items-center text-[10px] font-bold text-gray-500 uppercase cursor-pointer"><input type="checkbox" id="levelUpCheck_Alex" onchange="updateExerciseState('Alex', 'levelup', this.checked)" class="mr-1 w-4 h-4 accent-blue-600">🚀 Level Up</label>
+                        <label class="flex items-center text-[10px] font-bold text-gray-500 uppercase cursor-pointer"><input type="checkbox" id="inactiveCheck_Alex" onchange="updateExerciseState('Alex', 'inactive', this.checked)" class="mr-1 w-4 h-4 accent-gray-500">💤 Inactive</label>
+                    </div>
+                </div>
+                
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-                    <div id="input-sets" class="hidden">
+                    <div id="input-sets_Alex" class="hidden">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sets</label>
-                        <input type="number" id="sets" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
+                        <input type="number" id="sets_Alex" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-green-500 transition-colors" placeholder="0">
                     </div>
-                    <div id="input-reps" class="hidden">
+                    <div id="input-reps_Alex" class="hidden">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Reps</label>
-                        <input type="number" id="reps" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
+                        <input type="number" id="reps_Alex" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-green-500 transition-colors" placeholder="0">
                     </div>
-                    <div id="input-weight" class="hidden">
+                    <div id="input-weight_Alex" class="hidden">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Weight (kg)</label>
-                        <input type="number" id="weight" step="0.5" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
+                        <input type="number" id="weight_Alex" step="0.5" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-green-500 transition-colors" placeholder="0">
                     </div>
-                    <div id="input-time" class="hidden">
+                    <div id="input-time_Alex" class="hidden">
                         <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="time" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
-                            <button id="timerBtn" onclick="toggleTimer()" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors">Start</button>
-                            <button id="resetTimerBtn" onclick="resetTimer()" class="bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hidden transition-colors">Reset</button>
+                            <input type="number" id="time_Alex" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-green-500 transition-colors" placeholder="0">
+                            <button id="timerBtn_Alex" onclick="toggleTimer('Alex')" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors">Start</button>
+                            <button id="resetTimerBtn_Alex" onclick="resetTimer('Alex')" class="bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hidden transition-colors">Reset</button>
                         </div>
                     </div>
                 </div>
-                <div id="countdownDisplay" class="text-center text-5xl font-bold text-orange-500 mt-4 hidden">60</div>
+                <div id="countdownDisplay_Alex" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mt-4 mb-4">
-                <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="levelUpContainer">
-                    <span class="font-bold text-gray-800 text-sm mb-3">🚀 Level Up</span>
-                    <input type="checkbox" id="levelUpCheck" onchange="toggleLevelUp()" class="w-6 h-6 accent-blue-600">
-                </label>
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-pink-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800 text-lg">Gen</h3>
+                    <div class="flex items-center space-x-3">
+                        <label class="flex items-center text-[10px] font-bold text-gray-500 uppercase cursor-pointer"><input type="checkbox" id="levelUpCheck_Gen" onchange="updateExerciseState('Gen', 'levelup', this.checked)" class="mr-1 w-4 h-4 accent-blue-600">🚀 Level Up</label>
+                        <label class="flex items-center text-[10px] font-bold text-gray-500 uppercase cursor-pointer"><input type="checkbox" id="inactiveCheck_Gen" onchange="updateExerciseState('Gen', 'inactive', this.checked)" class="mr-1 w-4 h-4 accent-gray-500">💤 Inactive</label>
+                    </div>
+                </div>
                 
-                <label class="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer border-2 border-transparent transition-colors text-center" id="inactiveContainer">
-                    <span class="font-bold text-gray-800 text-sm mb-3">💤 Inactive</span>
-                    <input type="checkbox" id="inactiveCheck" onchange="toggleInactive()" class="w-6 h-6 accent-gray-500">
-                </label>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+                    <div id="input-sets_Gen" class="hidden">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sets</label>
+                        <input type="number" id="sets_Gen" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-pink-500 transition-colors" placeholder="0">
+                    </div>
+                    <div id="input-reps_Gen" class="hidden">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Reps</label>
+                        <input type="number" id="reps_Gen" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-pink-500 transition-colors" placeholder="0">
+                    </div>
+                    <div id="input-weight_Gen" class="hidden">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Weight (kg)</label>
+                        <input type="number" id="weight_Gen" step="0.5" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-pink-500 transition-colors" placeholder="0">
+                    </div>
+                    <div id="input-time_Gen" class="hidden">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="time_Gen" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-pink-500 transition-colors" placeholder="0">
+                            <button id="timerBtn_Gen" onclick="toggleTimer('Gen')" class="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors">Start</button>
+                            <button id="resetTimerBtn_Gen" onclick="resetTimer('Gen')" class="bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold uppercase hidden transition-colors">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="countdownDisplay_Gen" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
 
             <div class="h-16"></div>
@@ -184,6 +214,8 @@
             </button>
         </div>
 
+    </div>
+
     <div class="bg-white border-t border-gray-200 flex justify-around p-3 pb-8 fixed bottom-0 left-0 w-full z-10">
         <button onclick="showScreen('categories')" class="flex flex-col items-center text-blue-600 w-1/2">
             <span class="text-2xl">🏃</span>
@@ -195,21 +227,19 @@
         </button>
     </div>
 
- <script>
-        // NEW GOOGLE APPS SCRIPT URL
+    <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzpfaP9gXYvAIA9CVeydWT5u8wjZAHtl_LUXZJSJHhyJF07Ft2UbVnDsjEAzJ1QBYRM/exec";
         
         let exercises = [];
         let historyData = [];
         let categories = [];
         let currentExercise = null;
-        let timerInterval;
-        let countdownValue = 0;
+        let timerIntervals = { Alex: null, Gen: null };
+        let countdownValues = { Alex: 0, Gen: 0 };
         let progressChartInstance = null;
         let loggerChartInstance = null;
         const dingSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
 
-        // Helper function for Google Apps Script requests to avoid CORS issues
         async function googleFetch(payload) {
             return await fetch(API_URL, {
                 method: 'POST',
@@ -229,30 +259,43 @@
             categories = [...new Set(exercises.map(ex => ex.category))].sort();
         }
 
-async function fetchHistory() {
+        async function fetchHistory() {
             const res = await fetch(`${API_URL}?sheet=Logs`, { cache: 'no-store' });
             let rawData = await res.json();
             
-            // NEW: Clean up Google's raw date strings and force them into DD/MM/YYYY
+            // Feature 1: Clean parsing of DateTime vs Legacy DD/MM/YYYY
             rawData = rawData.map(log => {
-                // If the date exists but isn't formatted with slashes yet
-                if (log.date && !log.date.includes('/')) {
-                    const d = new Date(log.date);
-                    if (!isNaN(d.getTime())) {
-                        const day = String(d.getDate()).padStart(2, '0');
-                        const month = String(d.getMonth() + 1).padStart(2, '0');
-                        const year = d.getFullYear();
-                        log.date = `${day}/${month}/${year}`;
-                    }
+                let d;
+                if (log.date && log.date.includes('T')) {
+                    d = new Date(log.date);
+                } else if (log.date && log.date.includes('/')) {
+                    const parts = log.date.split('/');
+                    d = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                    d = new Date(log.date);
+                }
+                
+                log.timestamp = d.getTime();
+                
+                if (!isNaN(log.timestamp)) {
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const year = d.getFullYear();
+                    const hours = String(d.getHours()).padStart(2, '0');
+                    const mins = String(d.getMinutes()).padStart(2, '0');
+                    
+                    // Show time only if it's the new DateTime standard
+                    log.displayDate = log.date.includes('T') ? `${day}/${month}/${year} ${hours}:${mins}` : `${day}/${month}/${year}`;
+                    log.justDate = `${day}/${month}/${year}`; 
+                } else {
+                    log.displayDate = log.date;
+                    log.justDate = log.date;
                 }
                 return log;
             });
 
-            historyData = rawData.sort((a, b) => {
-                const [dayA, monthA, yearA] = a.date.split('/');
-                const [dayB, monthB, yearB] = b.date.split('/');
-                return new Date(yearB, monthB - 1, dayB) - new Date(yearA, monthA - 1, dayA);
-            });
+            // True chronological sorting
+            historyData = rawData.sort((a, b) => b.timestamp - a.timestamp);
         
             populateHistoryDropdown();
             renderHistory();
@@ -286,7 +329,6 @@ async function fetchHistory() {
         }
 
         function handleUserChange() {
-            loadData();
             renderHistory();
             renderChart();
             if (!document.getElementById('screen-exercises').classList.contains('hidden')) {
@@ -318,27 +360,40 @@ async function fetchHistory() {
 
         function renderExerciseList(category) {
             const list = document.getElementById('exerciseList');
-            const user = document.getElementById('userToggle').value.toLowerCase();
+            const user = document.getElementById('userToggle').value;
+            const userLower = user.toLowerCase();
             const showInactive = document.getElementById('showInactiveCheck').checked;
             
             const filtered = exercises.filter(ex => ex.category === category);
             
+            // Feature 3: Get today's formatted date string to check against history
+            const todayD = new Date();
+            const todayStr = `${String(todayD.getDate()).padStart(2, '0')}/${String(todayD.getMonth() + 1).padStart(2, '0')}/${todayD.getFullYear()}`;
+
             const htmlOutput = filtered.map(ex => {
-                const inactiveKey = Object.keys(ex).find(k => k.toLowerCase() === `inactive_${user}`);
-                const readyKey = Object.keys(ex).find(k => k.toLowerCase() === `levelup_${user}`);
+                const inactiveKey = Object.keys(ex).find(k => k.toLowerCase() === `inactive_${userLower}`);
+                const readyKey = Object.keys(ex).find(k => k.toLowerCase() === `levelup_${userLower}`);
 
                 const isInactive = inactiveKey ? String(ex[inactiveKey]).trim().toLowerCase() === 'true' : false;
                 const isReady = readyKey ? String(ex[readyKey]).trim().toLowerCase() === 'true' : false;
                 
+                // Check if global user logged this specific exercise today
+                const loggedToday = historyData.some(log => log.exercise_name === ex.name && log.user_name === user && log.justDate === todayStr);
+
                 if (isInactive && !showInactive) return '';
 
-                const readyBadge = isReady ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
+                const readyBadge = isReady && !loggedToday ? `<span class="ml-2 text-[10px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Up Next 🚀</span>` : '';
                 const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
+                const doneBadge = loggedToday ? `<span class="ml-2 text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Done ✓</span>` : '';
                 
+                // Feature 3: Grey out if done today or inactive
+                const opacityClass = (isInactive || loggedToday) ? 'opacity-40 grayscale' : '';
+
                 return `
-                <div onclick='openLogger(${JSON.stringify(ex).replace(/'/g, "&apos;")})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${isInactive ? 'opacity-50' : ''}">
+                <div onclick='openLogger(${JSON.stringify(ex).replace(/'/g, "&apos;")})' class="p-4 flex justify-between items-center cursor-pointer active:bg-gray-50 ${opacityClass}">
                     <div class="flex items-center">
                         <span class="font-bold text-gray-800">${ex.name}</span>
+                        ${doneBadge}
                         ${readyBadge}
                         ${inactiveBadge}
                     </div>
@@ -373,7 +428,7 @@ async function fetchHistory() {
                         <div class="text-sm text-gray-600">${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}</div>
                         
                         <div class="text-xs mt-1 flex items-center space-x-2">
-                            <span class="text-gray-400">${log.date}</span>
+                            <span class="text-gray-400">${log.displayDate}</span>
                             ${log.category ? `<span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">${log.category}</span>` : ''}
                         </div>
                     </div>
@@ -406,7 +461,7 @@ async function fetchHistory() {
             
             container.classList.remove('hidden');
             const chartLogs = historyData.filter(log => log.exercise_name === exerciseName && log.user_name === user).reverse();
-            const labels = chartLogs.map(log => log.date);
+            const labels = chartLogs.map(log => log.displayDate);
             const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || 0);
             
             if (progressChartInstance) progressChartInstance.destroy();
@@ -429,7 +484,8 @@ async function fetchHistory() {
         }
 
         function openLogger(ex) {
-            resetTimer(); 
+            resetTimer('Alex'); 
+            resetTimer('Gen'); 
             currentExercise = ex;
             document.getElementById('loggerTitle').innerText = ex.name;
             
@@ -443,13 +499,14 @@ async function fetchHistory() {
             const units = ex.units ? ex.units.toLowerCase() : "sets,reps,weight";
             const isCardio = ex.category === "Cardio";
             
+            // Toggle visibility for both users' inputs
             ['sets', 'reps', 'weight', 'time'].forEach(u => {
-                const container = document.getElementById(`input-${u}`);
-                container.classList.toggle('hidden', !units.includes(u));
-                
-                if (u === 'time') {
-                    container.querySelector('label').innerText = isCardio ? "Time (minutes)" : "Time (seconds)";
-                }
+                const show = units.includes(u);
+                ['Alex', 'Gen'].forEach(user => {
+                    const container = document.getElementById(`input-${u}_${user}`);
+                    container.classList.toggle('hidden', !show);
+                    if (u === 'time') container.querySelector('label').innerText = isCardio ? "Time (minutes)" : "Time (seconds)";
+                });
             });
 
             loadData();
@@ -458,71 +515,43 @@ async function fetchHistory() {
 
         function loadData() {
             if(!currentExercise) return;
-            const user = document.getElementById('userToggle').value;
-            const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
-            const last = userLogs[0];
             const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
-        
-            if(last) {
-                document.getElementById('sets').value = last.sets || '';
-                document.getElementById('reps').value = last.reps || '';
-                document.getElementById('weight').value = last.weight || '';
-                document.getElementById('time').value = last.time || '';
-                
-            let details = [
-                last.sets ? last.sets+' Sets' : '', 
-                last.reps ? last.reps+' Reps' : '', 
-                last.weight ? last.weight+'kg' : '', 
-                last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
-            ].filter(Boolean).join(' × ');
-        
-            document.getElementById('lastSessionText').innerText = `${last.date}: ${details}`;
-        
-                let incDate = null;
-                for(let i=0; i<userLogs.length-1; i++) {
-                    let increased = false;
+
+            // Populate logic for both users
+            ['Alex', 'Gen'].forEach(user => {
+                const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
+                const last = userLogs[0];
+            
+                if(last) {
+                    document.getElementById(`sets_${user}`).value = last.sets || '';
+                    document.getElementById(`reps_${user}`).value = last.reps || '';
+                    document.getElementById(`weight_${user}`).value = last.weight || '';
+                    document.getElementById(`time_${user}`).value = last.time || '';
                     
-                    if (units.includes('weight')) {
-                        increased = parseFloat(userLogs[i].weight) > parseFloat(userLogs[i+1].weight);
-                    } else if (units.includes('time')) {
-                        increased = parseFloat(userLogs[i].time) > parseFloat(userLogs[i+1].time);
-                    } else if (units.includes('reps')) {
-                        increased = parseFloat(userLogs[i].reps) > parseFloat(userLogs[i+1].reps);
-                    }
-        
-                    if(increased) { incDate = userLogs[i].date; break; }
+                    let details = [
+                        last.sets ? last.sets+' Sets' : '', 
+                        last.reps ? last.reps+' Reps' : '', 
+                        last.weight ? last.weight+'kg' : '', 
+                        last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
+                    ].filter(Boolean).join(' × ');
+            
+                    document.getElementById(`lastSessionText_${user}`).innerHTML = `${last.displayDate}: ${details}`;
+                } else {
+                    ['sets', 'reps', 'weight', 'time'].forEach(id => document.getElementById(`${id}_${user}`).value = '');
+                    document.getElementById(`lastSessionText_${user}`).innerText = "No previous data.";
                 }
-        
-                const prText = document.getElementById('prText');
-                if(incDate) { 
-                    prText.classList.remove('hidden'); 
-                    document.getElementById('increaseDate').innerText = incDate; 
-                } else { 
-                    prText.classList.add('hidden'); 
-                }
-            } else {
-                ['sets', 'reps', 'weight', 'time'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('lastSessionText').innerText = "No previous data.";
-                document.getElementById('prText').classList.add('hidden');
-            }
 
-            const userLower = user.toLowerCase();
-            const readyKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
-            const inactiveKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `inactive_${userLower}`);
+                // Load PR Toggles
+                const userLower = user.toLowerCase();
+                const readyKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
+                const inactiveKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `inactive_${userLower}`);
 
-            const isReady = readyKey ? String(currentExercise[readyKey]).trim().toLowerCase() === 'true' : false;
-            const isInactive = inactiveKey ? String(currentExercise[inactiveKey]).trim().toLowerCase() === 'true' : false;
+                const isReady = readyKey ? String(currentExercise[readyKey]).trim().toLowerCase() === 'true' : false;
+                const isInactive = inactiveKey ? String(currentExercise[inactiveKey]).trim().toLowerCase() === 'true' : false;
 
-            document.getElementById('levelUpCheck').checked = isReady;
-            document.getElementById('inactiveCheck').checked = isInactive;
-
-            const levelContainer = document.getElementById('levelUpContainer');
-            if (isReady) levelContainer.classList.replace('border-transparent', 'border-blue-500');
-            else levelContainer.classList.replace('border-blue-500', 'border-transparent');
-
-            const inactiveContainer = document.getElementById('inactiveContainer');
-            if (isInactive) inactiveContainer.classList.replace('border-transparent', 'border-gray-400');
-            else inactiveContainer.classList.replace('border-gray-400', 'border-transparent');
+                document.getElementById(`levelUpCheck_${user}`).checked = isReady;
+                document.getElementById(`inactiveCheck_${user}`).checked = isInactive;
+            });
 
             renderLoggerChart();
         }
@@ -530,7 +559,6 @@ async function fetchHistory() {
         function toggleLoggerChart() {
             const container = document.getElementById('loggerChartContainer');
             const icon = document.getElementById('chartToggleIcon');
-            
             if (icon.classList.contains('hidden')) return;
 
             if (container.classList.contains('hidden')) {
@@ -545,11 +573,12 @@ async function fetchHistory() {
 
         function renderLoggerChart() {
             if (!currentExercise) return;
-            const user = document.getElementById('userToggle').value;
+            // Base chart off the globally selected user so X-axis dates align cleanly
+            const mainUser = document.getElementById('userToggle').value;
             const canvas = document.getElementById('loggerChart');
             const icon = document.getElementById('chartToggleIcon');
             
-            const chartLogs = historyData.filter(log => log.exercise_name === currentExercise.name && log.user_name === user).reverse();
+            const chartLogs = historyData.filter(log => log.exercise_name === currentExercise.name && log.user_name === mainUser).reverse();
             
             if (chartLogs.length < 2) {
                 icon.classList.add('hidden');
@@ -557,7 +586,7 @@ async function fetchHistory() {
             }
             
             icon.classList.remove('hidden');
-            const labels = chartLogs.map(log => log.date);
+            const labels = chartLogs.map(log => log.displayDate);
             const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || parseFloat(log.reps) || 0);
             
             if (loggerChartInstance) loggerChartInstance.destroy();
@@ -567,10 +596,10 @@ async function fetchHistory() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: currentExercise.name,
+                        label: `${mainUser}'s Progress`,
                         data: data,
-                        borderColor: user === 'Alex' ? '#10B981' : '#EC4899', 
-                        backgroundColor: user === 'Alex' ? '#D1FAE5' : '#FCE7F3',
+                        borderColor: mainUser === 'Alex' ? '#10B981' : '#EC4899', 
+                        backgroundColor: mainUser === 'Alex' ? '#D1FAE5' : '#FCE7F3',
                         tension: 0.4,
                         fill: true,
                         pointRadius: 3
@@ -588,28 +617,28 @@ async function fetchHistory() {
             });
         }
 
-        function toggleTimer() {
-            const btn = document.getElementById('timerBtn');
-            const resetBtn = document.getElementById('resetTimerBtn');
-            const display = document.getElementById('countdownDisplay');
+        function toggleTimer(user) {
+            const btn = document.getElementById(`timerBtn_${user}`);
+            const resetBtn = document.getElementById(`resetTimerBtn_${user}`);
+            const display = document.getElementById(`countdownDisplay_${user}`);
             const isCardio = currentExercise.category === "Cardio";
             
             const updateDisplay = () => {
-                const m = Math.floor(countdownValue / 60);
-                const s = countdownValue % 60;
-                display.innerText = (isCardio || m > 0) ? `${m}:${s.toString().padStart(2, '0')}` : countdownValue;
+                const m = Math.floor(countdownValues[user] / 60);
+                const s = countdownValues[user] % 60;
+                display.innerText = (isCardio || m > 0) ? `${m}:${s.toString().padStart(2, '0')}` : countdownValues[user];
             };
 
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            if (timerIntervals[user]) {
+                clearInterval(timerIntervals[user]);
+                timerIntervals[user] = null;
                 btn.innerText = "Resume";
                 btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-yellow-500";
             } else {
-                if (countdownValue <= 0 || display.classList.contains('hidden')) {
-                    let rawValue = parseInt(document.getElementById('time').value) || 0;
-                    countdownValue = isCardio ? rawValue * 60 : rawValue; 
-                    if(countdownValue <= 0) return;   
+                if (countdownValues[user] <= 0 || display.classList.contains('hidden')) {
+                    let rawValue = parseInt(document.getElementById(`time_${user}`).value) || 0;
+                    countdownValues[user] = isCardio ? rawValue * 60 : rawValue; 
+                    if(countdownValues[user] <= 0) return;   
                     
                     display.classList.remove('hidden');
                     display.classList.remove('text-red-500');
@@ -621,30 +650,30 @@ async function fetchHistory() {
                 btn.innerText = "Pause";
                 btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-red-500";
 
-                timerInterval = setInterval(() => {
-                    countdownValue--;
+                timerIntervals[user] = setInterval(() => {
+                    countdownValues[user]--;
                     updateDisplay();
                     
-                    if(countdownValue <= 5) display.classList.replace('text-orange-500', 'text-red-500');
+                    if(countdownValues[user] <= 5) display.classList.replace('text-orange-500', 'text-red-500');
                     
-                    if(countdownValue <= 0) {
-                        resetTimer();
+                    if(countdownValues[user] <= 0) {
+                        resetTimer(user);
                         dingSound.play().catch(e => console.log("Audio play prevented by browser"));
                     }
                 }, 1000);
             }
         }
 
-        function resetTimer() {
-            const btn = document.getElementById('timerBtn');
-            const resetBtn = document.getElementById('resetTimerBtn');
-            const display = document.getElementById('countdownDisplay');
+        function resetTimer(user) {
+            const btn = document.getElementById(`timerBtn_${user}`);
+            const resetBtn = document.getElementById(`resetTimerBtn_${user}`);
+            const display = document.getElementById(`countdownDisplay_${user}`);
             
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
+            if (timerIntervals[user]) {
+                clearInterval(timerIntervals[user]);
+                timerIntervals[user] = null;
             }
-            countdownValue = 0;
+            countdownValues[user] = 0;
             display.classList.add('hidden');
             
             btn.innerText = "Start";
@@ -652,104 +681,106 @@ async function fetchHistory() {
             resetBtn.classList.add('hidden');
         }
 
-async function submitWorkout() {
+        async function submitWorkout() {
             const btn = document.getElementById('submitBtn');
-            const user = document.getElementById('userToggle').value;
-            const currentDate = new Date().toLocaleDateString('en-GB');
-            const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
-    
-            const alreadyLogged = userLogs.some(l => l.date === currentDate);
-            if (alreadyLogged) {
-                const proceed = confirm(`You already logged ${currentExercise.name} today. Are you sure you want to log it again?`);
-                if (!proceed) return; 
-            }
-    
             btn.innerText = "Saving...";
             btn.disabled = true;
         
-            const weightVal = parseFloat(document.getElementById('weight').value) || 0;
-            const repsVal = parseFloat(document.getElementById('reps').value) || 0;
-            const timeVal = parseFloat(document.getElementById('time').value) || 0;
-            
             const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
-        
-            const bestWeight = Math.max(0, ...userLogs.map(l => parseFloat(l.weight) || 0));
-            const bestReps = Math.max(0, ...userLogs.map(l => parseFloat(l.reps) || 0));
-            const bestTime = Math.max(0, ...userLogs.map(l => parseFloat(l.time) || 0));
-        
-            let isPR = false;
-        
-            if (units.includes('weight') && weightVal > 0) {
-                isPR = weightVal > bestWeight && bestWeight > 0;
-            } else if (units.includes('time') && timeVal > 0) {
-                isPR = timeVal > bestTime && bestTime > 0;
-            } else if (units.includes('reps') && repsVal > 0) {
-                isPR = repsVal > bestReps && bestReps > 0;
-            }
-        
-            const log = {
-                id: crypto.randomUUID(),
-                exercise_name: currentExercise.name,
-                category: currentExercise.category,
-                user_name: user,
-                date: new Date().toLocaleDateString('en-GB'), 
-                sets: document.getElementById('sets').value,
-                reps: document.getElementById('reps').value,
-                weight: document.getElementById('weight').value,
-                time: document.getElementById('time').value
-            };
-        
-            try {
-                await googleFetch({ method: "POST", sheet: "Logs", data: log });
-                
-                // Show success state
-                btn.innerText = "Saved! ✅";
-                btn.classList.replace('bg-blue-600', 'bg-green-500');
-                
-                if (isPR) {
-                    confetti({ 
-                        particleCount: 150, 
-                        spread: 70, 
-                        origin: { y: 0.6 },
-                        colors: user === 'Alex' ? ['#10B981', '#ffffff'] : ['#EC4899', '#ffffff'] 
-                    });
+            let savedAny = false;
+            let showConfetti = false;
 
-                    const userLower = user.toLowerCase();
-                    const exactLevelUpKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
+            // Iterate over both users and check if they have filled inputs
+            for (const user of ['Alex', 'Gen']) {
+                const weightVal = parseFloat(document.getElementById(`weight_${user}`).value) || 0;
+                const repsVal = parseFloat(document.getElementById(`reps_${user}`).value) || 0;
+                const timeVal = parseFloat(document.getElementById(`time_${user}`).value) || 0;
+                const setsVal = parseFloat(document.getElementById(`sets_${user}`).value) || 0;
+
+                // Skip if this user's section is completely empty
+                if (!weightVal && !repsVal && !timeVal && !setsVal) continue;
+
+                // Feature 1: Timestamp check to prevent instant-double clicking
+                const currentDateStr = new Date().toLocaleDateString('en-GB');
+                const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
+                
+                // Allow multiple logs per day now that we sort by DateTime, but warn them just in case
+                // Only throw warning if they logged it less than 2 minutes ago to prevent accidents
+                const recentlyLogged = userLogs.some(l => (new Date().getTime() - l.timestamp) < 120000);
+                if (recentlyLogged) {
+                    if (!confirm(`${user} just logged this less than 2 mins ago. Are you sure you want to log it again?`)) continue; 
+                }
+
+                savedAny = true;
+                const bestWeight = Math.max(0, ...userLogs.map(l => parseFloat(l.weight) || 0));
+                const bestReps = Math.max(0, ...userLogs.map(l => parseFloat(l.reps) || 0));
+                const bestTime = Math.max(0, ...userLogs.map(l => parseFloat(l.time) || 0));
+            
+                let isPR = false;
+                if (units.includes('weight') && weightVal > 0) isPR = weightVal > bestWeight && bestWeight > 0;
+                else if (units.includes('time') && timeVal > 0) isPR = timeVal > bestTime && bestTime > 0;
+                else if (units.includes('reps') && repsVal > 0) isPR = repsVal > bestReps && bestReps > 0;
+            
+                if (isPR) showConfetti = true;
+
+                const log = {
+                    id: crypto.randomUUID(),
+                    exercise_name: currentExercise.name,
+                    category: currentExercise.category,
+                    user_name: user,
+                    date: new Date().toISOString(), // Feature 1: Exact ISO String for flawless sorting!
+                    sets: document.getElementById(`sets_${user}`).value,
+                    reps: document.getElementById(`reps_${user}`).value,
+                    weight: document.getElementById(`weight_${user}`).value,
+                    time: document.getElementById(`time_${user}`).value
+                };
+            
+                try {
+                    await googleFetch({ method: "POST", sheet: "Logs", data: log });
                     
-                    if (exactLevelUpKey) {
-                        try {
+                    if (isPR) {
+                        const exactLevelUpKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${user.toLowerCase()}`);
+                        if (exactLevelUpKey) {
                             await googleFetch({
-                                method: "PATCH",
-                                sheet: "Exercises",
-                                id: currentExercise.id,
+                                method: "PATCH", sheet: "Exercises", id: currentExercise.id,
                                 data: { [exactLevelUpKey]: "false" }
                             });
-                            
-                            await fetchExercises(); 
-                            currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
-                            if (currentExercise && currentExercise.category) {
-                                renderExerciseList(currentExercise.category);
-                            }
-                        } catch (err) {
-                            console.error("Auto-reset failed:", err);
                         }
                     }
-
-                    await new Promise(r => setTimeout(r, 2000));
-                } else {
-                    // Pause to show the success message for normal logs
-                    await new Promise(r => setTimeout(r, 1500));
+                } catch (err) { 
+                    alert(`Failed to save log for ${user}.`); 
                 }
-        
-                await fetchHistory(); 
-                currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
-                loadData();
-            } catch (err) { 
-                alert("Failed to save log."); 
             }
-        
-            // Revert button state
+
+            if (!savedAny) {
+                alert("Please enter stats for at least one person.");
+                btn.innerText = "Log Workout";
+                btn.disabled = false;
+                return;
+            }
+            
+            btn.innerText = "Saved! ✅";
+            btn.classList.replace('bg-blue-600', 'bg-green-500');
+            
+            if (showConfetti) {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10B981', '#EC4899', '#ffffff'] });
+                await fetchExercises(); 
+                currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
+                if (currentExercise && currentExercise.category) renderExerciseList(currentExercise.category);
+                await new Promise(r => setTimeout(r, 2000));
+            } else {
+                await new Promise(r => setTimeout(r, 1500));
+            }
+    
+            // Clear inputs ready for the next set
+            ['Alex', 'Gen'].forEach(user => {
+                ['sets', 'reps', 'weight', 'time'].forEach(u => document.getElementById(`${u}_${user}`).value = '');
+            });
+
+            await fetchHistory(); 
+            currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
+            loadData();
+            
             btn.innerText = "Log Workout";
             btn.classList.replace('bg-green-500', 'bg-blue-600');
             btn.disabled = false;
@@ -759,7 +790,6 @@ async function submitWorkout() {
             if (!confirm("Are you sure you want to delete this log?")) return;
 
             try {
-                // Added sheet: "Logs" to tell Google exactly where to delete from
                 await googleFetch({ method: "DELETE", sheet: "Logs", id: logId });
                 await fetchHistory();
             } catch (err) {
@@ -767,29 +797,15 @@ async function submitWorkout() {
             }
         }
 
-        async function updateExerciseState(type, isChecked) {
-            const userLower = document.getElementById('userToggle').value.toLowerCase();
+        async function updateExerciseState(user, type, isChecked) {
+            const userLower = user.toLowerCase();
             const exactColumnName = Object.keys(currentExercise).find(k => k.toLowerCase() === `${type}_${userLower}`); 
-            
-            const containerId = type === 'levelup' ? 'levelUpContainer' : 'inactiveContainer';
-            const activeColor = type === 'levelup' ? 'border-blue-500' : 'border-gray-400';
-            const container = document.getElementById(containerId);
-            
-            if (isChecked) {
-                container.classList.replace('border-transparent', activeColor);
-            } else {
-                container.classList.replace(activeColor, 'border-transparent');
-            }
 
             if (exactColumnName) {
-                // Optimistically update the memory so it doesn't revert on the next save
                 currentExercise[exactColumnName] = isChecked ? "true" : "false";
-                
                 try {
                     await googleFetch({
-                        method: "PATCH",
-                        sheet: "Exercises",
-                        id: currentExercise.id,
+                        method: "PATCH", sheet: "Exercises", id: currentExercise.id,
                         data: { [exactColumnName]: isChecked ? "true" : "false" }
                     });
                     
@@ -803,14 +819,6 @@ async function submitWorkout() {
                     console.error("Failed to sync with Google Sheets:", err);
                 }
             }
-        }
-
-        function toggleLevelUp() {
-            updateExerciseState('levelup', document.getElementById('levelUpCheck').checked);
-        }
-
-        function toggleInactive() {
-            updateExerciseState('inactive', document.getElementById('inactiveCheck').checked);
         }
 
         async function saveNewExercise() {
@@ -833,9 +841,7 @@ async function submitWorkout() {
             };
 
             try {
-                // Send custom POST tunnel to Google Apps Script
                 await googleFetch({ method: "POST", sheet: "Exercises", data: newExercise });
-
                 alert(`${name} added!`);
                 document.getElementById('newExName').value = ""; 
                 await fetchExercises(); 
