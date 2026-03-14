@@ -716,22 +716,17 @@
             let savedAny = false;
             let showConfetti = false;
 
-            // Iterate over both users and check if they have filled inputs
             for (const user of ['Alex', 'Gen']) {
                 const weightVal = parseFloat(document.getElementById(`weight_${user}`).value) || 0;
                 const repsVal = parseFloat(document.getElementById(`reps_${user}`).value) || 0;
                 const timeVal = parseFloat(document.getElementById(`time_${user}`).value) || 0;
                 const setsVal = parseFloat(document.getElementById(`sets_${user}`).value) || 0;
 
-                // Skip if this user's section is completely empty
                 if (!weightVal && !repsVal && !timeVal && !setsVal) continue;
 
-                // Feature 1: Timestamp check to prevent instant-double clicking
                 const currentDateStr = new Date().toLocaleDateString('en-GB');
                 const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
                 
-                // Allow multiple logs per day now that we sort by DateTime, but warn them just in case
-                // Only throw warning if they logged it less than 2 minutes ago to prevent accidents
                 const recentlyLogged = userLogs.some(l => (new Date().getTime() - l.timestamp) < 120000);
                 if (recentlyLogged) {
                     if (!confirm(`${user} just logged this less than 2 mins ago. Are you sure you want to log it again?`)) continue; 
@@ -754,27 +749,35 @@
                     exercise_name: currentExercise.name,
                     category: currentExercise.category,
                     user_name: user,
-                    date: new Date().toISOString(), // Feature 1: Exact ISO String for flawless sorting!
+                    date: new Date().toISOString(), 
                     sets: document.getElementById(`sets_${user}`).value,
                     reps: document.getElementById(`reps_${user}`).value,
                     weight: document.getElementById(`weight_${user}`).value,
                     time: document.getElementById(`time_${user}`).value
                 };
             
+                // OPTIMISTIC UPDATE: Inject straight into local memory instantly
+                const todayD = new Date();
+                log.timestamp = todayD.getTime();
+                log.justDate = `${String(todayD.getDate()).padStart(2, '0')}/${String(todayD.getMonth() + 1).padStart(2, '0')}/${todayD.getFullYear()}`;
+                log.displayDate = log.justDate; 
+                historyData.unshift(log);
+
                 try {
-                    await googleFetch({ method: "POST", sheet: "Logs", data: log });
+                    // Let Google save in the background without forcing the UI to wait
+                    googleFetch({ method: "POST", sheet: "Logs", data: log });
                     
                     if (isPR) {
                         const exactLevelUpKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${user.toLowerCase()}`);
                         if (exactLevelUpKey) {
-                            await googleFetch({
+                            googleFetch({
                                 method: "PATCH", sheet: "Exercises", id: currentExercise.id,
                                 data: { [exactLevelUpKey]: "false" }
                             });
                         }
                     }
                 } catch (err) { 
-                    alert(`Failed to save log for ${user}.`); 
+                    console.error(`Failed to save log for ${user}.`); 
                 }
             }
 
@@ -788,24 +791,25 @@
             btn.innerText = "Saved! ✅";
             btn.classList.replace('bg-blue-600', 'bg-green-500');
             
+            // Instantly redraw the exercise list so the grey "Done" badge is visible if they hit Back
+            if (currentExercise && currentExercise.category) {
+                renderExerciseList(currentExercise.category);
+            }
+
             if (showConfetti) {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10B981', '#EC4899', '#ffffff'] });
-                await fetchExercises(); 
-                currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
-                if (currentExercise && currentExercise.category) renderExerciseList(currentExercise.category);
                 await new Promise(r => setTimeout(r, 2000));
             } else {
-                await new Promise(r => setTimeout(r, 1500));
+                await new Promise(r => setTimeout(r, 1000));
             }
     
-            // Clear inputs ready for the next set
             ['Alex', 'Gen'].forEach(user => {
                 ['sets', 'reps', 'weight', 'time'].forEach(u => document.getElementById(`${u}_${user}`).value = '');
             });
 
-            await fetchHistory(); 
-            currentExercise = exercises.find(ex => ex.id === currentExercise.id) || currentExercise;
-            loadData();
+            // Refresh true data in the background
+            fetchHistory().then(() => loadData());
+            fetchExercises();
             
             btn.innerText = "Log Workout";
             btn.classList.replace('bg-green-500', 'bg-blue-600');
