@@ -573,42 +573,68 @@
 
         function renderLoggerChart() {
             if (!currentExercise) return;
-            // Base chart off the globally selected user so X-axis dates align cleanly
-            const mainUser = document.getElementById('userToggle').value;
             const canvas = document.getElementById('loggerChart');
             const icon = document.getElementById('chartToggleIcon');
             
-            const chartLogs = historyData.filter(log => log.exercise_name === currentExercise.name && log.user_name === mainUser).reverse();
+            // Get all logs for this exercise (both users) and sort chronologically
+            const exerciseLogs = historyData.filter(log => log.exercise_name === currentExercise.name).reverse();
             
-            if (chartLogs.length < 2) {
+            const alexLogs = exerciseLogs.filter(log => log.user_name === 'Alex');
+            const genLogs = exerciseLogs.filter(log => log.user_name === 'Gen');
+            
+            // Hide the chart if neither of you have enough data points yet
+            if (alexLogs.length < 2 && genLogs.length < 2) {
                 icon.classList.add('hidden');
                 return;
             }
             
             icon.classList.remove('hidden');
-            const labels = chartLogs.map(log => log.displayDate);
-            const data = chartLogs.map(log => parseFloat(log.weight) || parseFloat(log.time) || parseFloat(log.reps) || 0);
+            
+            // Create a single unified timeline of dates for the X-axis
+            const uniqueDates = [...new Set(exerciseLogs.map(log => log.displayDate))];
+            
+            // Helper function to map each person's data to the unified timeline
+            const mapData = (userLogs) => {
+                return uniqueDates.map(date => {
+                    const log = userLogs.find(l => l.displayDate === date);
+                    return log ? (parseFloat(log.weight) || parseFloat(log.time) || parseFloat(log.reps) || 0) : null;
+                });
+            };
             
             if (loggerChartInstance) loggerChartInstance.destroy();
             
             loggerChartInstance = new Chart(canvas, {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: `${mainUser}'s Progress`,
-                        data: data,
-                        borderColor: mainUser === 'Alex' ? '#10B981' : '#EC4899', 
-                        backgroundColor: mainUser === 'Alex' ? '#D1FAE5' : '#FCE7F3',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 3
-                    }]
+                    labels: uniqueDates,
+                    datasets: [
+                        {
+                            label: 'Alex',
+                            data: mapData(alexLogs),
+                            borderColor: '#10B981', 
+                            backgroundColor: '#D1FAE5',
+                            tension: 0.4,
+                            spanGaps: true, // Connects the line even if Alex skipped a day Gen worked out
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Gen',
+                            data: mapData(genLogs),
+                            borderColor: '#EC4899', 
+                            backgroundColor: '#FCE7F3',
+                            tension: 0.4,
+                            spanGaps: true, // Connects the line even if Gen skipped a day Alex worked out
+                            pointRadius: 3
+                        }
+                    ]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        // Turn the legend on so you can see who is who!
+                        legend: { display: true, labels: { boxWidth: 10, usePointStyle: true, font: { size: 10 } } } 
+                    },
                     scales: {
                         x: { display: true, ticks: { maxTicksLimit: 5 } }, 
                         y: { display: true, ticks: { maxTicksLimit: 4 } }
