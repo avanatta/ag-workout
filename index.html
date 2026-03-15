@@ -326,13 +326,20 @@
                 backBtn.classList.add('invisible'); 
             }
 
+            // NEW: Hide the global user dropdown when on the logger screen
+            const userToggle = document.getElementById('userToggle');
+            if (screen === 'logger') {
+                userToggle.classList.add('invisible');
+            } else {
+                userToggle.classList.remove('invisible', 'hidden');
+            }
+
             document.querySelectorAll('.fixed.bottom-0 button').forEach(btn => btn.classList.replace('text-blue-600', 'text-gray-400'));
             if(['categories', 'exercises', 'logger', 'add-exercise'].includes(screen)) {
                 document.querySelectorAll('.fixed.bottom-0 button')[0].classList.replace('text-gray-400', 'text-blue-600');
             }
             if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
         }
-
         function handleUserChange() {
             renderHistory();
             renderChart();
