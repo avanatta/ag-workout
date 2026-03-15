@@ -86,8 +86,13 @@
                     <canvas id="loggerChart"></canvas>
                 </div>
             </div>
+            <div class="flex bg-gray-200 p-1 rounded-lg mb-4">
+                <button id="modeBtn_Alex" onclick="setLoggerMode('Alex')" class="flex-1 py-1 text-sm font-bold rounded-md text-gray-500 transition-all">Alex</button>
+                <button id="modeBtn_Both" onclick="setLoggerMode('Both')" class="flex-1 py-1 text-sm font-bold rounded-md bg-white shadow-sm text-gray-800 transition-all">Both</button>
+                <button id="modeBtn_Gen" onclick="setLoggerMode('Gen')" class="flex-1 py-1 text-sm font-bold rounded-md text-gray-500 transition-all">Gen</button>
+            </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-green-500">
+            <div id="card_Alex" class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-green-500">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-gray-800 text-lg">Alex</h3>
                     <div class="flex items-center space-x-3">
@@ -121,7 +126,7 @@
                 <div id="countdownDisplay_Alex" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-pink-500">
+            <div id="card_Gen" class="bg-white p-4 rounded-xl shadow-sm mb-4 border-l-4 border-pink-500">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-gray-800 text-lg">Gen</h3>
                     <div class="flex items-center space-x-3">
@@ -154,7 +159,7 @@
                 </div>
                 <div id="countdownDisplay_Gen" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
-
+            
             <div class="h-16"></div>
             <div class="fixed bottom-[96px] left-4 right-4 z-20">
                 <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-xl transition-all duration-150 active:scale-95 active:bg-blue-800 active:shadow-sm">
@@ -484,6 +489,7 @@
         }
 
         function openLogger(ex) {
+            setLoggerMode('Both');
             resetTimer('Alex'); 
             resetTimer('Gen'); 
             currentExercise = ex;
@@ -849,6 +855,21 @@
                     console.error("Failed to sync with Google Sheets:", err);
                 }
             }
+        }
+        function setLoggerMode(mode) {
+            ['Alex', 'Both', 'Gen'].forEach(m => {
+                const btn = document.getElementById(`modeBtn_${m}`);
+                if (m === mode) {
+                    btn.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+                    btn.classList.remove('text-gray-500');
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+
+            document.getElementById('card_Alex').classList.toggle('hidden', mode === 'Gen');
+            document.getElementById('card_Gen').classList.toggle('hidden', mode === 'Alex');
         }
 
         async function saveNewExercise() {
