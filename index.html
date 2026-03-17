@@ -44,7 +44,7 @@
                 <div class="p-4 text-center text-gray-400">Loading categories...</div>
             </div>
             
-            <button onclick="showScreen('add-exercise')" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
+            <button onclick="openAddExercise()" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
                 +
             </button>
         </div>
@@ -60,7 +60,7 @@
             </div>
             <div id="exerciseList" class="bg-white rounded-xl shadow-sm divide-y divide-gray-100"></div>
 
-            <button onclick="showScreen('add-exercise')" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
+            <button onclick="openAddExercise()" class="fixed bottom-[104px] right-6 w-14 h-14 bg-orange-500 text-white rounded-full shadow-xl flex items-center justify-center text-4xl font-light pb-1 active:scale-95 transition-transform z-20">
                 +
             </button>
         </div>
@@ -68,16 +68,23 @@
         <div id="screen-logger" class="hidden">
             <div class="flex items-center justify-between mb-4">
                 <h1 id="loggerTitle" class="text-xl font-bold text-gray-900 truncate flex-1 text-left pt-2">Exercise</h1>
+                <button onclick="editCurrentExercise()" class="text-gray-400 p-2 text-xl active:scale-95 transition-transform">✏️</button>
             </div>
 
             <img id="gifViewer" class="w-full max-h-48 object-contain bg-gray-50 rounded-xl mb-4 hidden" src="" alt="Exercise GIF">
             
             <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
-                <div class="flex justify-between items-center cursor-pointer" onclick="toggleLoggerChart()">
-                    <div class="flex-1">
-                        <h3 class="font-bold text-gray-800 text-sm mb-2">Session History</h3>
-                        <div class="text-sm mb-1"><span class="font-bold text-green-600 mr-2">Alex:</span><span id="lastSessionText_Alex" class="text-gray-600">Loading...</span></div>
-                        <div class="text-sm"><span class="font-bold text-pink-500 mr-2">Gen:</span><span id="lastSessionText_Gen" class="text-gray-600">Loading...</span></div>
+                <div class="flex justify-between items-start cursor-pointer" onclick="toggleLoggerChart()">
+                    <div class="flex-1 w-full">
+                        <h3 class="font-bold text-gray-800 text-sm mb-3">Session History</h3>
+                        <div class="mb-3">
+                            <div class="text-sm"><span class="font-bold text-green-600 mr-2">Alex:</span><span id="lastSessionText_Alex" class="text-gray-600">Loading...</span></div>
+                            <div id="prText_Alex" class="text-green-600 text-[10px] font-bold mt-0.5 hidden">Last increase: <span id="increaseDate_Alex"></span></div>
+                        </div>
+                        <div>
+                            <div class="text-sm"><span class="font-bold text-pink-500 mr-2">Gen:</span><span id="lastSessionText_Gen" class="text-gray-600">Loading...</span></div>
+                            <div id="prText_Gen" class="text-pink-500 text-[10px] font-bold mt-0.5 hidden">Last increase: <span id="increaseDate_Gen"></span></div>
+                        </div>
                     </div>
                     <div id="chartToggleIcon" class="text-gray-400 text-2xl transition-transform duration-300 hidden">▾</div>
                 </div>
@@ -86,6 +93,7 @@
                     <canvas id="loggerChart"></canvas>
                 </div>
             </div>
+
             <div class="flex bg-gray-200 p-1 rounded-lg mb-4">
                 <button id="modeBtn_Alex" onclick="setLoggerMode('Alex')" class="flex-1 py-1 text-sm font-bold rounded-md text-gray-500 transition-all">Alex</button>
                 <button id="modeBtn_Both" onclick="setLoggerMode('Both')" class="flex-1 py-1 text-sm font-bold rounded-md bg-white shadow-sm text-gray-800 transition-all">Both</button>
@@ -123,6 +131,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-4">
+                    <input type="text" id="notes_Alex" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm focus:outline-none focus:border-green-500 transition-colors" placeholder="Optional note...">
+                </div>
                 <div id="countdownDisplay_Alex" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
 
@@ -157,9 +168,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-4">
+                    <input type="text" id="notes_Gen" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm focus:outline-none focus:border-pink-500 transition-colors" placeholder="Optional note...">
+                </div>
                 <div id="countdownDisplay_Gen" class="text-center text-4xl font-bold text-orange-500 mt-4 hidden"></div>
             </div>
-            
+
             <div class="h-16"></div>
             <div class="fixed bottom-[96px] left-4 right-4 z-20">
                 <button id="submitBtn" onclick="submitWorkout()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-xl transition-all duration-150 active:scale-95 active:bg-blue-800 active:shadow-sm">
@@ -184,7 +198,7 @@
         </div>
 
         <div id="screen-add-exercise" class="hidden">
-            <h1 class="text-2xl font-bold text-orange-600 mb-4 pt-2">New Exercise</h1>
+            <h1 id="addEditExTitle" class="text-2xl font-bold text-orange-600 mb-4 pt-2">New Exercise</h1>
             
             <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
                 <div>
@@ -198,23 +212,23 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Track These Units:</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
-                            <input type="checkbox" value="sets" class="unit-check" checked> <span>Sets</span>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm cursor-pointer">
+                            <input type="checkbox" value="sets" class="unit-check"> <span>Sets</span>
                         </label>
-                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
-                            <input type="checkbox" value="reps" class="unit-check" checked> <span>Reps</span>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm cursor-pointer">
+                            <input type="checkbox" value="reps" class="unit-check"> <span>Reps</span>
                         </label>
-                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
-                            <input type="checkbox" value="weight" class="unit-check" checked> <span>Weight</span>
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm cursor-pointer">
+                            <input type="checkbox" value="weight" class="unit-check"> <span>Weight</span>
                         </label>
-                        <label class="flex items-center space-x-2 p-2 border rounded text-sm">
+                        <label class="flex items-center space-x-2 p-2 border rounded text-sm cursor-pointer">
                             <input type="checkbox" value="time" class="unit-check"> <span>Time</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <button id="addExBtn" onclick="saveNewExercise()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl mt-6 shadow-lg active:scale-95 transition-transform">
+            <button id="addExBtn" onclick="saveExerciseConfig()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl mt-6 shadow-lg active:scale-95 transition-transform">
                 Save to Exercises
             </button>
         </div>
@@ -239,6 +253,7 @@
         let historyData = [];
         let categories = [];
         let currentExercise = null;
+        let editingExerciseId = null;
         let timerIntervals = { Alex: null, Gen: null };
         let countdownValues = { Alex: 0, Gen: 0 };
         let progressChartInstance = null;
@@ -268,7 +283,6 @@
             const res = await fetch(`${API_URL}?sheet=Logs`, { cache: 'no-store' });
             let rawData = await res.json();
             
-            // Feature 1: Clean parsing of DateTime vs Legacy DD/MM/YYYY
             rawData = rawData.map(log => {
                 let d;
                 if (log.date && log.date.includes('T')) {
@@ -289,7 +303,6 @@
                     const hours = String(d.getHours()).padStart(2, '0');
                     const mins = String(d.getMinutes()).padStart(2, '0');
                     
-                    // Show time only if it's the new DateTime standard
                     log.displayDate = log.date.includes('T') ? `${day}/${month}/${year} ${hours}:${mins}` : `${day}/${month}/${year}`;
                     log.justDate = `${day}/${month}/${year}`; 
                 } else {
@@ -299,7 +312,6 @@
                 return log;
             });
 
-            // True chronological sorting
             historyData = rawData.sort((a, b) => b.timestamp - a.timestamp);
         
             populateHistoryDropdown();
@@ -321,12 +333,17 @@
             } else if (screen === 'logger') {
                 backBtn.onclick = () => showScreen('exercises');
             } else if (screen === 'add-exercise') {
-                backBtn.onclick = () => showScreen('categories');
+                backBtn.onclick = () => {
+                    if (editingExerciseId) {
+                        showScreen('logger');
+                    } else {
+                        showScreen('categories');
+                    }
+                };
             } else {
                 backBtn.classList.add('invisible'); 
             }
 
-            // NEW: Hide the global user dropdown when on the logger screen
             const userToggle = document.getElementById('userToggle');
             if (screen === 'logger') {
                 userToggle.classList.add('invisible');
@@ -340,6 +357,7 @@
             }
             if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
         }
+
         function handleUserChange() {
             renderHistory();
             renderChart();
@@ -378,7 +396,6 @@
             
             const filtered = exercises.filter(ex => ex.category === category);
             
-            // Feature 3: Get today's formatted date string to check against history
             const todayD = new Date();
             const todayStr = `${String(todayD.getDate()).padStart(2, '0')}/${String(todayD.getMonth() + 1).padStart(2, '0')}/${todayD.getFullYear()}`;
 
@@ -389,7 +406,6 @@
                 const isInactive = inactiveKey ? String(ex[inactiveKey]).trim().toLowerCase() === 'true' : false;
                 const isReady = readyKey ? String(ex[readyKey]).trim().toLowerCase() === 'true' : false;
                 
-                // Check if global user logged this specific exercise today
                 const loggedToday = historyData.some(log => log.exercise_name === ex.name && log.user_name === user && log.justDate === todayStr);
 
                 if (isInactive && !showInactive) return '';
@@ -398,7 +414,6 @@
                 const inactiveBadge = isInactive ? `<span class="ml-2 text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Inactive 💤</span>` : '';
                 const doneBadge = loggedToday ? `<span class="ml-2 text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold uppercase tracking-wider">Done ✓</span>` : '';
                 
-                // Feature 3: Grey out if done today or inactive
                 const opacityClass = (isInactive || loggedToday) ? 'opacity-40 grayscale' : '';
 
                 return `
@@ -438,8 +453,9 @@
                             <span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'pink'}-100 text-${log.user_name === 'Alex' ? 'green' : 'pink'}-800 font-bold">${log.user_name}</span>
                         </div>
                         <div class="text-sm text-gray-600">${[log.sets ? log.sets+' Sets' : '', log.reps ? log.reps+' Reps' : '', log.weight ? log.weight+'kg' : '', log.time ? log.time+'s' : ''].filter(Boolean).join(' × ')}</div>
+                        ${log.notes ? `<div class="text-xs text-gray-500 italic mt-1">"${log.notes}"</div>` : ''}
                         
-                        <div class="text-xs mt-1 flex items-center space-x-2">
+                        <div class="text-xs mt-2 flex items-center space-x-2">
                             <span class="text-gray-400">${log.displayDate}</span>
                             ${log.category ? `<span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">${log.category}</span>` : ''}
                         </div>
@@ -495,6 +511,22 @@
             });
         }
 
+        function setLoggerMode(mode) {
+            ['Alex', 'Both', 'Gen'].forEach(m => {
+                const btn = document.getElementById(`modeBtn_${m}`);
+                if (m === mode) {
+                    btn.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
+                    btn.classList.remove('text-gray-500');
+                } else {
+                    btn.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+
+            document.getElementById('card_Alex').classList.toggle('hidden', mode === 'Gen');
+            document.getElementById('card_Gen').classList.toggle('hidden', mode === 'Alex');
+        }
+
         function openLogger(ex) {
             setLoggerMode('Both');
             resetTimer('Alex'); 
@@ -512,7 +544,6 @@
             const units = ex.units ? ex.units.toLowerCase() : "sets,reps,weight";
             const isCardio = ex.category === "Cardio";
             
-            // Toggle visibility for both users' inputs
             ['sets', 'reps', 'weight', 'time'].forEach(u => {
                 const show = units.includes(u);
                 ['Alex', 'Gen'].forEach(user => {
@@ -530,7 +561,6 @@
             if(!currentExercise) return;
             const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
 
-            // Populate logic for both users
             ['Alex', 'Gen'].forEach(user => {
                 const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
                 const last = userLogs[0];
@@ -548,13 +578,33 @@
                         last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
                     ].filter(Boolean).join(' × ');
             
-                    document.getElementById(`lastSessionText_${user}`).innerHTML = `${last.displayDate}: ${details}`;
+                    // Updated to justDate without timestamp
+                    document.getElementById(`lastSessionText_${user}`).innerHTML = `${last.justDate}: ${details}`;
+
+                    // Re-add PR Tracking
+                    let incDate = null;
+                    for(let i=0; i<userLogs.length-1; i++) {
+                        let increased = false;
+                        if (units.includes('weight')) increased = parseFloat(userLogs[i].weight) > parseFloat(userLogs[i+1].weight);
+                        else if (units.includes('time')) increased = parseFloat(userLogs[i].time) > parseFloat(userLogs[i+1].time);
+                        else if (units.includes('reps')) increased = parseFloat(userLogs[i].reps) > parseFloat(userLogs[i+1].reps);
+                        
+                        if(increased) { incDate = userLogs[i].justDate; break; }
+                    }
+            
+                    const prText = document.getElementById(`prText_${user}`);
+                    if(incDate) { 
+                        prText.classList.remove('hidden'); 
+                        document.getElementById(`increaseDate_${user}`).innerText = incDate; 
+                    } else { 
+                        prText.classList.add('hidden'); 
+                    }
                 } else {
-                    ['sets', 'reps', 'weight', 'time'].forEach(id => document.getElementById(`${id}_${user}`).value = '');
+                    ['sets', 'reps', 'weight', 'time', 'notes'].forEach(id => document.getElementById(`${id}_${user}`).value = '');
                     document.getElementById(`lastSessionText_${user}`).innerText = "No previous data.";
+                    document.getElementById(`prText_${user}`).classList.add('hidden');
                 }
 
-                // Load PR Toggles
                 const userLower = user.toLowerCase();
                 const readyKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `levelup_${userLower}`);
                 const inactiveKey = Object.keys(currentExercise).find(k => k.toLowerCase() === `inactive_${userLower}`);
@@ -589,24 +639,18 @@
             const canvas = document.getElementById('loggerChart');
             const icon = document.getElementById('chartToggleIcon');
             
-            // Get all logs for this exercise (both users) and sort chronologically
             const exerciseLogs = historyData.filter(log => log.exercise_name === currentExercise.name).reverse();
-            
             const alexLogs = exerciseLogs.filter(log => log.user_name === 'Alex');
             const genLogs = exerciseLogs.filter(log => log.user_name === 'Gen');
             
-            // Hide the chart if neither of you have enough data points yet
             if (alexLogs.length < 2 && genLogs.length < 2) {
                 icon.classList.add('hidden');
                 return;
             }
             
             icon.classList.remove('hidden');
-            
-            // Create a single unified timeline of dates for the X-axis
             const uniqueDates = [...new Set(exerciseLogs.map(log => log.displayDate))];
             
-            // Helper function to map each person's data to the unified timeline
             const mapData = (userLogs) => {
                 return uniqueDates.map(date => {
                     const log = userLogs.find(l => l.displayDate === date);
@@ -627,7 +671,7 @@
                             borderColor: '#10B981', 
                             backgroundColor: '#D1FAE5',
                             tension: 0.4,
-                            spanGaps: true, // Connects the line even if Alex skipped a day Gen worked out
+                            spanGaps: true, 
                             pointRadius: 3
                         },
                         {
@@ -636,7 +680,7 @@
                             borderColor: '#EC4899', 
                             backgroundColor: '#FCE7F3',
                             tension: 0.4,
-                            spanGaps: true, // Connects the line even if Gen skipped a day Alex worked out
+                            spanGaps: true, 
                             pointRadius: 3
                         }
                     ]
@@ -645,7 +689,6 @@
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { 
-                        // Turn the legend on so you can see who is who!
                         legend: { display: true, labels: { boxWidth: 10, usePointStyle: true, font: { size: 10 } } } 
                     },
                     scales: {
@@ -672,7 +715,7 @@
                 clearInterval(timerIntervals[user]);
                 timerIntervals[user] = null;
                 btn.innerText = "Resume";
-                btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-yellow-500";
+                btn.className = "text-white px-3 py-1 rounded-lg text-[9px] font-bold uppercase w-16 text-center transition-colors bg-yellow-500 shrink-0";
             } else {
                 if (countdownValues[user] <= 0 || display.classList.contains('hidden')) {
                     let rawValue = parseInt(document.getElementById(`time_${user}`).value) || 0;
@@ -687,7 +730,7 @@
                 
                 updateDisplay();
                 btn.innerText = "Pause";
-                btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-red-500";
+                btn.className = "text-white px-3 py-1 rounded-lg text-[9px] font-bold uppercase w-16 text-center transition-colors bg-red-500 shrink-0";
 
                 timerIntervals[user] = setInterval(() => {
                     countdownValues[user]--;
@@ -716,7 +759,7 @@
             display.classList.add('hidden');
             
             btn.innerText = "Start";
-            btn.className = "text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase w-16 text-center transition-colors bg-green-500";
+            btn.className = "text-white px-3 py-1 rounded-lg text-[9px] font-bold uppercase w-16 text-center transition-colors bg-green-500 shrink-0";
             resetBtn.classList.add('hidden');
         }
 
@@ -734,12 +777,11 @@
                 const repsVal = parseFloat(document.getElementById(`reps_${user}`).value) || 0;
                 const timeVal = parseFloat(document.getElementById(`time_${user}`).value) || 0;
                 const setsVal = parseFloat(document.getElementById(`sets_${user}`).value) || 0;
+                const notesVal = document.getElementById(`notes_${user}`).value.trim();
 
-                if (!weightVal && !repsVal && !timeVal && !setsVal) continue;
+                if (!weightVal && !repsVal && !timeVal && !setsVal && !notesVal) continue;
 
-                const currentDateStr = new Date().toLocaleDateString('en-GB');
                 const userLogs = historyData.filter(l => l.exercise_name === currentExercise.name && l.user_name === user);
-                
                 const recentlyLogged = userLogs.some(l => (new Date().getTime() - l.timestamp) < 120000);
                 if (recentlyLogged) {
                     if (!confirm(`${user} just logged this less than 2 mins ago. Are you sure you want to log it again?`)) continue; 
@@ -766,10 +808,10 @@
                     sets: document.getElementById(`sets_${user}`).value,
                     reps: document.getElementById(`reps_${user}`).value,
                     weight: document.getElementById(`weight_${user}`).value,
-                    time: document.getElementById(`time_${user}`).value
+                    time: document.getElementById(`time_${user}`).value,
+                    notes: notesVal
                 };
             
-                // OPTIMISTIC UPDATE: Inject straight into local memory instantly
                 const todayD = new Date();
                 log.timestamp = todayD.getTime();
                 log.justDate = `${String(todayD.getDate()).padStart(2, '0')}/${String(todayD.getMonth() + 1).padStart(2, '0')}/${todayD.getFullYear()}`;
@@ -777,7 +819,6 @@
                 historyData.unshift(log);
 
                 try {
-                    // Let Google save in the background without forcing the UI to wait
                     googleFetch({ method: "POST", sheet: "Logs", data: log });
                     
                     if (isPR) {
@@ -804,7 +845,6 @@
             btn.innerText = "Saved! ✅";
             btn.classList.replace('bg-blue-600', 'bg-green-500');
             
-            // Instantly redraw the exercise list so the grey "Done" badge is visible if they hit Back
             if (currentExercise && currentExercise.category) {
                 renderExerciseList(currentExercise.category);
             }
@@ -817,10 +857,9 @@
             }
     
             ['Alex', 'Gen'].forEach(user => {
-                ['sets', 'reps', 'weight', 'time'].forEach(u => document.getElementById(`${u}_${user}`).value = '');
+                ['sets', 'reps', 'weight', 'time', 'notes'].forEach(u => document.getElementById(`${u}_${user}`).value = '');
             });
 
-            // Refresh true data in the background
             fetchHistory().then(() => loadData());
             fetchExercises();
             
@@ -863,23 +902,36 @@
                 }
             }
         }
-        function setLoggerMode(mode) {
-            ['Alex', 'Both', 'Gen'].forEach(m => {
-                const btn = document.getElementById(`modeBtn_${m}`);
-                if (m === mode) {
-                    btn.classList.add('bg-white', 'shadow-sm', 'text-gray-800');
-                    btn.classList.remove('text-gray-500');
-                } else {
-                    btn.classList.remove('bg-white', 'shadow-sm', 'text-gray-800');
-                    btn.classList.add('text-gray-500');
-                }
-            });
 
-            document.getElementById('card_Alex').classList.toggle('hidden', mode === 'Gen');
-            document.getElementById('card_Gen').classList.toggle('hidden', mode === 'Alex');
+        function openAddExercise() {
+            editingExerciseId = null;
+            document.getElementById('newExName').value = "";
+            document.getElementById('newExCategory').value = categories[0] || "";
+            document.querySelectorAll('.unit-check').forEach(cb => cb.checked = ['sets', 'reps', 'weight'].includes(cb.value));
+            
+            document.getElementById('addEditExTitle').innerText = "New Exercise";
+            document.getElementById('addExBtn').innerText = "Save to Exercises";
+            
+            showScreen('add-exercise');
         }
 
-        async function saveNewExercise() {
+        function editCurrentExercise() {
+            editingExerciseId = currentExercise.id;
+            document.getElementById('newExName').value = currentExercise.name;
+            document.getElementById('newExCategory').value = currentExercise.category;
+            
+            const units = currentExercise.units ? currentExercise.units.toLowerCase() : "";
+            document.querySelectorAll('.unit-check').forEach(cb => {
+                cb.checked = units.includes(cb.value);
+            });
+
+            document.getElementById('addEditExTitle').innerText = "Edit Exercise";
+            document.getElementById('addExBtn').innerText = "Save Changes";
+            
+            showScreen('add-exercise');
+        }
+
+        async function saveExerciseConfig() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
             const category = document.getElementById('newExCategory').value;
@@ -887,29 +939,45 @@
 
             if (!name) return alert("Please enter a name.");
 
-            btn.innerText = "Adding...";
+            btn.innerText = "Saving...";
             btn.disabled = true;
 
-            const newExercise = {
-                id: crypto.randomUUID(),
-                name: name,
-                category: category,
-                units: selectedUnits,
-                gif_url: ""
-            };
-
             try {
-                await googleFetch({ method: "POST", sheet: "Exercises", data: newExercise });
-                alert(`${name} added!`);
-                document.getElementById('newExName').value = ""; 
+                if (editingExerciseId) {
+                    await googleFetch({ 
+                        method: "PATCH", sheet: "Exercises", id: editingExerciseId,
+                        data: { name: name, category: category, units: selectedUnits } 
+                    });
+                    alert(`${name} updated!`);
+                    
+                    if (currentExercise && currentExercise.id === editingExerciseId) {
+                        currentExercise.name = name;
+                        currentExercise.category = category;
+                        currentExercise.units = selectedUnits;
+                        document.getElementById('loggerTitle').innerText = name;
+                    }
+                } else {
+                    const newExercise = {
+                        id: crypto.randomUUID(), name: name, category: category, units: selectedUnits, gif_url: ""
+                    };
+                    await googleFetch({ method: "POST", sheet: "Exercises", data: newExercise });
+                    alert(`${name} added!`);
+                }
+
                 await fetchExercises(); 
                 renderCategories(); 
-                showScreen('categories');
+                
+                if (editingExerciseId) {
+                    showScreen('logger');
+                    loadData(); 
+                } else {
+                    showScreen('categories');
+                }
             } catch (err) {
-                alert("Error adding exercise.");
+                alert("Error saving exercise.");
             }
 
-            btn.innerText = "Save to Exercises";
+            btn.innerText = "Save";
             btn.disabled = false;
         }
 
