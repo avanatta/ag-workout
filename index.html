@@ -931,7 +931,7 @@
             showScreen('add-exercise');
         }
 
-        async function saveExerciseConfig() {
+async function saveExerciseConfig() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
             const category = document.getElementById('newExCategory').value;
@@ -954,7 +954,6 @@
                         currentExercise.name = name;
                         currentExercise.category = category;
                         currentExercise.units = selectedUnits;
-                        document.getElementById('loggerTitle').innerText = name;
                     }
                 } else {
                     const newExercise = {
@@ -968,8 +967,8 @@
                 renderCategories(); 
                 
                 if (editingExerciseId) {
-                    showScreen('logger');
-                    loadData(); 
+                    // FIX: Run openLogger to force the UI to recalculate which inputs to show
+                    openLogger(currentExercise);
                 } else {
                     showScreen('categories');
                 }
