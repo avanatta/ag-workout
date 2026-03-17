@@ -233,6 +233,41 @@
             </button>
         </div>
 
+        <!-- NEW: Edit Log Screen -->
+        <div id="screen-edit-log" class="hidden">
+            <h1 class="text-2xl font-bold text-blue-600 mb-2 pt-2">Edit Log</h1>
+            <h2 id="editLogSubtitle" class="font-bold text-gray-500 mb-4 text-sm"></h2>
+            
+            <div class="bg-white p-4 rounded-xl shadow-sm space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Sets</label>
+                        <input type="number" id="editLogSets" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Reps</label>
+                        <input type="number" id="editLogReps" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Weight</label>
+                        <input type="number" id="editLogWeight" step="0.5" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</label>
+                        <input type="number" id="editLogTime" class="w-full border-b-2 border-gray-100 p-1 text-xl font-semibold focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 mt-2">Notes</label>
+                    <input type="text" id="editLogNotes" class="w-full bg-gray-50 border border-gray-100 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+            </div>
+
+            <button id="saveLogEditBtn" onclick="saveLogEdit()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mt-6 shadow-lg active:scale-95 transition-transform">
+                Save Changes
+            </button>
+        </div>
+
     </div>
 
     <div class="bg-white border-t border-gray-200 flex justify-around p-3 pb-8 fixed bottom-0 left-0 w-full z-10">
@@ -254,6 +289,7 @@
         let categories = [];
         let currentExercise = null;
         let editingExerciseId = null;
+        let editingLogId = null;
         let timerIntervals = { Alex: null, Gen: null };
         let countdownValues = { Alex: 0, Gen: 0 };
         let progressChartInstance = null;
@@ -320,7 +356,7 @@
         }
 
         function showScreen(screen) {
-            ['categories', 'exercises', 'logger', 'history', 'add-exercise'].forEach(s => {
+            ['categories', 'exercises', 'logger', 'history', 'add-exercise', 'edit-log'].forEach(s => {
                 document.getElementById(`screen-${s}`).classList.add('hidden');
             });
             document.getElementById(`screen-${screen}`).classList.remove('hidden');
@@ -334,18 +370,17 @@
                 backBtn.onclick = () => showScreen('exercises');
             } else if (screen === 'add-exercise') {
                 backBtn.onclick = () => {
-                    if (editingExerciseId) {
-                        showScreen('logger');
-                    } else {
-                        showScreen('categories');
-                    }
+                    if (editingExerciseId) showScreen('logger');
+                    else showScreen('categories');
                 };
+            } else if (screen === 'edit-log') {
+                backBtn.onclick = () => showScreen('history');
             } else {
                 backBtn.classList.add('invisible'); 
             }
 
             const userToggle = document.getElementById('userToggle');
-            if (screen === 'logger') {
+            if (screen === 'logger' || screen === 'edit-log') {
                 userToggle.classList.add('invisible');
             } else {
                 userToggle.classList.remove('invisible', 'hidden');
@@ -355,7 +390,9 @@
             if(['categories', 'exercises', 'logger', 'add-exercise'].includes(screen)) {
                 document.querySelectorAll('.fixed.bottom-0 button')[0].classList.replace('text-gray-400', 'text-blue-600');
             }
-            if(screen === 'history') document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
+            if(['history', 'edit-log'].includes(screen)) {
+                document.querySelectorAll('.fixed.bottom-0 button')[1].classList.replace('text-gray-400', 'text-blue-600');
+            }
         }
 
         function handleUserChange() {
@@ -447,8 +484,8 @@
             
             list.innerHTML = filtered.map(log => `
                 <div class="p-4 flex justify-between items-center group">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start mb-1 mr-4">
+                    <div class="flex-1 mr-4">
+                        <div class="flex justify-between items-start mb-1">
                             <span class="font-bold text-gray-800">${log.exercise_name}</span>
                             <span class="text-xs px-2 py-1 rounded bg-${log.user_name === 'Alex' ? 'green' : 'pink'}-100 text-${log.user_name === 'Alex' ? 'green' : 'pink'}-800 font-bold">${log.user_name}</span>
                         </div>
@@ -460,9 +497,10 @@
                             ${log.category ? `<span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">${log.category}</span>` : ''}
                         </div>
                     </div>
-                    <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-600 p-2 text-xl">
-                        🗑️
-                    </button>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="openEditLog('${log.id}')" class="text-gray-400 hover:text-blue-500 p-2 text-xl transition-colors">✏️</button>
+                        <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-600 p-2 text-xl transition-colors">🗑️</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -578,10 +616,8 @@
                         last.time ? (currentExercise.category === "Cardio" ? last.time+'m' : last.time+'s') : ''
                     ].filter(Boolean).join(' × ');
             
-                    // Updated to justDate without timestamp
                     document.getElementById(`lastSessionText_${user}`).innerHTML = `${last.justDate}: ${details}`;
 
-                    // Re-add PR Tracking
                     let incDate = null;
                     for(let i=0; i<userLogs.length-1; i++) {
                         let increased = false;
@@ -931,7 +967,7 @@
             showScreen('add-exercise');
         }
 
-async function saveExerciseConfig() {
+        async function saveExerciseConfig() {
             const btn = document.getElementById('addExBtn');
             const name = document.getElementById('newExName').value;
             const category = document.getElementById('newExCategory').value;
@@ -967,7 +1003,6 @@ async function saveExerciseConfig() {
                 renderCategories(); 
                 
                 if (editingExerciseId) {
-                    // FIX: Run openLogger to force the UI to recalculate which inputs to show
                     openLogger(currentExercise);
                 } else {
                     showScreen('categories');
@@ -977,6 +1012,63 @@ async function saveExerciseConfig() {
             }
 
             btn.innerText = "Save";
+            btn.disabled = false;
+        }
+
+        // NEW: Open specific history log for editing
+        function openEditLog(logId) {
+            const log = historyData.find(l => l.id === logId);
+            if (!log) return;
+            
+            editingLogId = logId;
+            document.getElementById('editLogSubtitle').innerText = `${log.exercise_name} - ${log.displayDate} (${log.user_name})`;
+            document.getElementById('editLogSets').value = log.sets || '';
+            document.getElementById('editLogReps').value = log.reps || '';
+            document.getElementById('editLogWeight').value = log.weight || '';
+            document.getElementById('editLogTime').value = log.time || '';
+            document.getElementById('editLogNotes').value = log.notes || '';
+            
+            showScreen('edit-log');
+        }
+
+        // NEW: Save the edits to the log
+        async function saveLogEdit() {
+            const btn = document.getElementById('saveLogEditBtn');
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            const updatedData = {
+                sets: document.getElementById('editLogSets').value,
+                reps: document.getElementById('editLogReps').value,
+                weight: document.getElementById('editLogWeight').value,
+                time: document.getElementById('editLogTime').value,
+                notes: document.getElementById('editLogNotes').value
+            };
+
+            try {
+                // Optimistic Update so the UI reflects it immediately
+                const logIndex = historyData.findIndex(l => l.id === editingLogId);
+                if (logIndex > -1) {
+                    historyData[logIndex] = { ...historyData[logIndex], ...updatedData };
+                }
+
+                // Force the UI to reflect changes
+                renderHistory();
+                renderChart();
+                if (currentExercise) loadData();
+
+                showScreen('history');
+
+                // Sync to Google in the background
+                googleFetch({ method: "PATCH", sheet: "Logs", id: editingLogId, data: updatedData })
+                    .then(() => fetchHistory())
+                    .then(() => { if (currentExercise) loadData(); });
+
+            } catch (err) {
+                alert("Failed to update log.");
+            }
+
+            btn.innerText = "Save Changes";
             btn.disabled = false;
         }
 
